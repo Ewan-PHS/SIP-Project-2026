@@ -408,9 +408,6 @@ if args.opengui == 0:
     path_to_save = args.SavePath
     name_to_save = args.Name
 
-# Patch to save my insanity and make it always save to my downloads folder for testing.
-# path_to_save = "C:\\Users\\ewanc\\Downloads"
-
 # print(xyz_load)
 
 # Below is code for PyVista
