@@ -335,16 +335,16 @@ def file_name():
 
 # Parser to allow for passing arguments when running the .py file
 parser = argparse.ArgumentParser(description="A simple CLI tool.")
-parser.add_argument("opengui", type=bool, help="Boolean, whether to open built-in the GUI.")
+parser.add_argument("opengui", type=int, help="Int, (0=False, 1=True), whether to open built-in the GUI.")
 parser.add_argument("TopViewPath", type=str, help="String, path for top-view image")
 parser.add_argument("FrontViewPath", type=str, help="String, path for front-view image")
 parser.add_argument("RightViewPath", type=str, help="String, path for right-view image")
+parser.add_argument("Name", type=str, help="String, name of 3D model")
+parser.add_argument("SavePath", type=str, default="C:\\Users\\ewanc\\Downloads", help="String, path to save the 3D model at")
 
 args = parser.parse_args()
 
-print(f"{args.opengui} ; {args.TopViewPath} ; {args.FrontViewPath} ; {args.RightViewPath}")
-
-if args.opengui == True:
+if args.opengui == 1:
     # Opens a tkinter GUI
     root = tk.Tk()  # creates window
     root.title("Image to 3D model")  # window title
@@ -388,7 +388,7 @@ if args.opengui == True:
 
     root.destroy()
 
-if args.opengui == False:
+if args.opengui == 0:
     img_1_path = args.RightViewPath
     img_2_path = args.TopViewPath
     img_3_path = args.FrontViewPath
@@ -400,11 +400,16 @@ pcd_load = display_point_cloud(img_1_path, img_2_path, img_3_path)[0]
 
 xyz_load = np.asarray(pcd_load.points)
 
-path_to_save = file_path()
-name_to_save = file_name()
+if args.opengui == 1:
+    path_to_save = file_path()
+    name_to_save = file_name()
+
+if args.opengui == 0:
+    path_to_save = args.SavePath
+    name_to_save = args.Name
 
 # Patch to save my insanity and make it always save to my downloads folder for testing.
-path_to_save = "C:\\Users\\ewanc\\Downloads"
+# path_to_save = "C:\\Users\\ewanc\\Downloads"
 
 # print(xyz_load)
 
