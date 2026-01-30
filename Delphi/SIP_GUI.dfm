@@ -14,13 +14,13 @@ object Form1: TForm1
   object Label1: TLabel
     Left = 40
     Top = 24
-    Width = 601
-    Height = 65
+    Width = 34
+    Height = 15
     Caption = 'Label1'
   end
   object btnTop: TButton
     Left = 8
-    Top = 252
+    Top = 244
     Width = 121
     Height = 25
     Caption = 'Pick a top view'
@@ -35,7 +35,7 @@ object Form1: TForm1
   end
   object btnFront: TButton
     Left = 8
-    Top = 446
+    Top = 438
     Width = 121
     Height = 25
     Caption = 'Pick a front view'
@@ -50,7 +50,7 @@ object Form1: TForm1
   end
   object btnSide: TButton
     Left = 177
-    Top = 252
+    Top = 244
     Width = 121
     Height = 25
     Caption = 'Pick a side view'
@@ -65,7 +65,7 @@ object Form1: TForm1
   end
   object pnlPreview: TPanel
     Left = 336
-    Top = 118
+    Top = 110
     Width = 337
     Height = 376
     TabOrder = 3
@@ -91,7 +91,7 @@ object Form1: TForm1
   end
   object btnGenerate: TButton
     Left = 169
-    Top = 367
+    Top = 359
     Width = 153
     Height = 58
     Caption = 'Generate 3D model'
@@ -105,7 +105,7 @@ object Form1: TForm1
   end
   object Panel1: TPanel
     Left = 8
-    Top = 312
+    Top = 304
     Width = 121
     Height = 120
     TabOrder = 5
@@ -118,11 +118,11 @@ object Form1: TForm1
   end
   object Panel2: TPanel
     Left = 8
-    Top = 118
+    Top = 110
     Width = 121
     Height = 120
     TabOrder = 6
-    object Image1: TImage
+    object imgTop: TImage
       Left = 8
       Top = 8
       Width = 105
@@ -131,11 +131,11 @@ object Form1: TForm1
   end
   object Panel3: TPanel
     Left = 177
-    Top = 118
+    Top = 110
     Width = 121
     Height = 120
     TabOrder = 7
-    object Image2: TImage
+    object imgSide: TImage
       Left = 8
       Top = 8
       Width = 105

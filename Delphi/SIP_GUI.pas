@@ -20,8 +20,8 @@ type
     imgFront: TImage;
     Panel2: TPanel;
     Panel3: TPanel;
-    Image1: TImage;
-    Image2: TImage;
+    imgTop: TImage;
+    imgSide: TImage;
     Label1: TLabel;
     procedure btnFrontClick(Sender: TObject);
     procedure btnTopClick(Sender: TObject);
