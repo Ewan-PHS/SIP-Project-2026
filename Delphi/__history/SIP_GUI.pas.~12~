@@ -10,19 +10,15 @@ uses
 type
   TForm1 = class(TForm)
     btnTop: TButton;
+    imgTop: TImage;
+    imgFront: TImage;
     btnFront: TButton;
+    imgSide: TImage;
     btnSide: TButton;
     pnlPreview: TPanel;
     Image4: TImage;
     lblPreview: TLabel;
     btnGenerate: TButton;
-    Panel1: TPanel;
-    imgFront: TImage;
-    Panel2: TPanel;
-    Panel3: TPanel;
-    Image1: TImage;
-    Image2: TImage;
-    Label1: TLabel;
     procedure btnFrontClick(Sender: TObject);
     procedure btnTopClick(Sender: TObject);
     procedure btnSideClick(Sender: TObject);
