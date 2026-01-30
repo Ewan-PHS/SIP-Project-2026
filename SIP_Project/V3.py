@@ -19,6 +19,7 @@ import cv2
 import torch
 import meshlib
 import time
+import point_cloud_utils as pcu
 
 # print(torch.cuda.is_available())
 # print(torch.cuda.get_device_name(0))
@@ -370,6 +371,8 @@ start_time = time.perf_counter()
 pcd_load = display_point_cloud(img_1_path, img_2_path, img_3_path)[0]
 
 xyz_load = np.asarray(pcd_load.points)
+
+
 
 path_to_save = file_path()
 name_to_save = file_name()
