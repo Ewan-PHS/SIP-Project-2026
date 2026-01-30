@@ -20,6 +20,7 @@ import torch
 import meshlib
 import time
 import point_cloud_utils as pcu
+import os
 
 # print(torch.cuda.is_available())
 # print(torch.cuda.get_device_name(0))
@@ -406,6 +407,10 @@ mesh = meshlib.mrmeshpy.triangulatePointCloud(points)#, params)
 meshlib.mrmeshpy.saveMesh(mesh, (f'SIP_Project\\tmp\\{name_to_save}.ply'))
 
 v, f = pcu.load_mesh_vf(f'SIP_Project\\tmp\\{name_to_save}.ply')
+
+if os.path.exists(f'SIP_Project\\tmp\\{name_to_save}.ply'):
+    os.remove(f'SIP_Project\\tmp\\{name_to_save}.ply')
+    print("tmp .ply deleted.")
 
 resolution = 20_000
 v_watertight, f_watertight = pcu.make_mesh_watertight(v, f, resolution=resolution)
