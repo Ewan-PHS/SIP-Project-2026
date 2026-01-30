@@ -372,8 +372,6 @@ pcd_load = display_point_cloud(img_1_path, img_2_path, img_3_path)[0]
 
 xyz_load = np.asarray(pcd_load.points)
 
-
-
 path_to_save = file_path()
 name_to_save = file_name()
 
@@ -403,13 +401,22 @@ points = meshlib.mrmeshnumpy.pointCloudFromPoints(xyz_load)
 
 # params = meshlib.mrmeshpy.TriangulationParameters()
 # params.radius = 4
-mesh = meshlib.mrmeshpy.triangulatePointCloud(points, )#params)
+mesh = meshlib.mrmeshpy.triangulatePointCloud(points)#, params)
+
+meshlib.mrmeshpy.saveMesh(mesh, (f'SIP_Project\\tmp\\{name_to_save}.ply'))
+
+v, f = pcu.load_mesh_vf(f'SIP_Project\\tmp\\{name_to_save}.ply')
+
+resolution = 20_000
+v_watertight, f_watertight = pcu.make_mesh_watertight(v, f, resolution=resolution)
 
 # To get the end time of execution
 end_time = time.perf_counter()
 
 # Save the resulting mesh
-meshlib.mrmeshpy.saveMesh(mesh, (f'{path_to_save}\\{name_to_save}.stl'))
+# meshlib.mrmeshpy.saveMesh(mesh, (f'{path_to_save}\\{name_to_save}.stl'))
+
+pcu.save_mesh_vf(v=v_watertight, f=f_watertight, filename=(f'{path_to_save}\\{name_to_save}.ply'), dtype=np.float64)
 
 end_save_time = time.perf_counter()
 
