@@ -201,8 +201,26 @@ def x3images_to_point_cloud(img01, img02, img03):
     repeat_iteration = max(len(tot_colours_img_1), len(tot_colours_img_2), len(tot_colours_img_3))
     print("No. iterations to go through: "+str(repeat_iteration))
 
-    for i in range(repeat_iteration):                                                                                                                               #  R                        G                        B
-        generated_point_set.extend(pixel_iterating_gpu(height_1, width_1, pixels01, height_2, width_2, pixels02, height_3, width_3, pixels03, unique_colours[0][i][0], unique_colours[0][i][1], unique_colours[0][i][2]))
+    filtered_pc = o3d.geometry.PointCloud()
+
+    for i in range(repeat_iteration):
+        point_set = []
+        # Create point cloud
+        point_cloud = o3d.geometry.PointCloud()
+
+        point_cloud.clear()
+                                                                                                                                         #  R                        G                        B
+        point_set = (pixel_iterating_gpu(height_1, width_1, pixels01, height_2, width_2, pixels02, height_3, width_3, pixels03, unique_colours[0][i][0], unique_colours[0][i][1], unique_colours[0][i][2]))
+        
+        print(point_set)
+
+        # Put points into point cloud
+        point_cloud.points = o3d.utility.Vector3dVector(point_set)
+        if len(point_set) > 0:
+            filtered_pc = filtered_pc + filter_point_cloud_x3points(point_cloud, repeat_iteration)
+        else:
+            filtered_pc = filtered_pc
+
         print("Iteration: "+str(i))
         print(unique_colours[0][i])
         print(f"{unique_colours[0][i][0]}, {unique_colours[0][i][1]}, {unique_colours[0][i][2]}")
@@ -210,17 +228,17 @@ def x3images_to_point_cloud(img01, img02, img03):
 
 ################################################################################################################
 
-    # Create point cloud
-    point_cloud = o3d.geometry.PointCloud()
+    # # Create point cloud
+    # point_cloud = o3d.geometry.PointCloud()
 
-    # Put points into point cloud
-    point_cloud.points = o3d.utility.Vector3dVector(generated_point_set)
+    # # Put points into point cloud
+    # point_cloud.points = o3d.utility.Vector3dVector(generated_point_set)
 
-    # Displaying point cloud
-    # o3d.visualization.draw_geometries([point_cloud])
+    # # Displaying point cloud
+    # # o3d.visualization.draw_geometries([point_cloud])
 
-    # Filtering point cloud
-    filtered_pc = filter_point_cloud_x3points(point_cloud, repeat_iteration)
+    # # Filtering point cloud
+    # filtered_pc = filter_point_cloud_x3points(point_cloud, repeat_iteration)
 
     filtered_pc.remove_duplicated_points()
     print(filtered_pc)
