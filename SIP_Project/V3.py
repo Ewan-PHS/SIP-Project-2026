@@ -402,16 +402,6 @@ points = meshlib.mrmeshnumpy.pointCloudFromPoints(xyz_load)
 # params.radius = 4
 mesh = meshlib.mrmeshpy.triangulatePointCloud(points, )#params)
 
-# # Find single edge for each hole in mesh
-# hole_edges = mesh.topology.findHoleRepresentiveEdges()
- 
-# for e in hole_edges:
-#     #  Setup filling parameters
-#     params = meshlib.mrmeshpy.FillHoleParams()
-#     params.metric = meshlib.mrmeshpy.getUniversalMetric(mesh)
-#     #  Fill hole represented by 'e'
-#     meshlib.mrmeshpy.fillHole(mesh, e, params)
-
 # To get the end time of execution
 end_time = time.perf_counter()
 
