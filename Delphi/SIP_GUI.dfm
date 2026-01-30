@@ -2,8 +2,8 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = '<insert fitting name here>'
-  ClientHeight = 376
-  ClientWidth = 677
+  ClientHeight = 494
+  ClientWidth = 678
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -11,70 +11,73 @@ object Form1: TForm1
   Font.Name = 'Segoe UI'
   Font.Style = []
   TextHeight = 15
-  object Image1: TImage
-    Left = 24
-    Top = 24
+  object imgTop: TImage
+    Left = 8
+    Top = 142
     Width = 105
     Height = 105
   end
-  object Image2: TImage
-    Left = 24
-    Top = 200
+  object imgFront: TImage
+    Left = 8
+    Top = 320
     Width = 105
     Height = 105
   end
-  object Image3: TImage
-    Left = 176
-    Top = 24
+  object imgSide: TImage
+    Left = 169
+    Top = 142
     Width = 105
     Height = 105
   end
   object btnTop: TButton
     Left = 8
-    Top = 152
-    Width = 129
+    Top = 270
+    Width = 105
     Height = 25
     Caption = 'Pick a top view'
     Font.Charset = ANSI_CHARSET
     Font.Color = clWindowText
-    Font.Height = -16
+    Font.Height = -15
     Font.Name = 'Times New Roman'
     Font.Style = []
     ParentFont = False
     TabOrder = 0
+    OnClick = btnTopClick
   end
   object btnFront: TButton
     Left = 8
-    Top = 313
-    Width = 129
+    Top = 446
+    Width = 105
     Height = 25
     Caption = 'Pick a front view'
     Font.Charset = ANSI_CHARSET
     Font.Color = clWindowText
-    Font.Height = -16
+    Font.Height = -15
     Font.Name = 'Times New Roman'
     Font.Style = []
     ParentFont = False
     TabOrder = 1
+    OnClick = btnFrontClick
   end
   object btnSide: TButton
     Left = 169
-    Top = 152
-    Width = 120
+    Top = 270
+    Width = 105
     Height = 25
     Caption = 'Pick a side view'
     Font.Charset = ANSI_CHARSET
     Font.Color = clWindowText
-    Font.Height = -16
+    Font.Height = -15
     Font.Name = 'Times New Roman'
     Font.Style = []
     ParentFont = False
     TabOrder = 2
+    OnClick = btnSideClick
   end
   object pnlPreview: TPanel
-    Left = 320
-    Top = 8
-    Width = 355
+    Left = 328
+    Top = 134
+    Width = 349
     Height = 360
     TabOrder = 3
     object Image4: TImage
@@ -98,8 +101,8 @@ object Form1: TForm1
     end
   end
   object btnGenerate: TButton
-    Left = 161
-    Top = 239
+    Left = 169
+    Top = 357
     Width = 153
     Height = 58
     Caption = 'Generate 3D model'
