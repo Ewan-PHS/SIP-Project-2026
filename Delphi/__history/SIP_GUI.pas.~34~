@@ -5,29 +5,37 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Imaging.pngimage, Vcl.Imaging.jpeg, Vcl.StdCtrls, Vcl.ExtCtrls;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Imaging.pngimage, Vcl.Imaging.jpeg, Vcl.StdCtrls, Vcl.ExtCtrls, ShellApi, FileCtrl;
 
 type
   TForm1 = class(TForm)
     btnTop: TButton;
     btnFront: TButton;
-    btnSide: TButton;
+    btnRight: TButton;
     pnlPreview: TPanel;
     Image4: TImage;
     lblPreview: TLabel;
     btnGenerate: TButton;
-    Panel1: TPanel;
+    pnlFrontView: TPanel;
     imgFront: TImage;
-    Panel2: TPanel;
-    Panel3: TPanel;
+    pnlTopView: TPanel;
+    pnlRightView: TPanel;
     imgTop: TImage;
     imgSide: TImage;
-    Label1: TLabel;
+    lblTitle: TLabel;
+    Name: TEdit;
+    SavePath: TEdit;
+    lblSavePath: TLabel;
+    lblName: TLabel;
+    bntSelectPath: TButton;
     procedure btnFrontClick(Sender: TObject);
     procedure btnTopClick(Sender: TObject);
-    procedure btnSideClick(Sender: TObject);
+    procedure btnRightClick(Sender: TObject);
+    procedure btnGenerateClick(Sender: TObject);
+    procedure bntSelectPathClick(Sender: TObject);
   private
-    { Private declarations }
+    var
+      sImgPathTopView, sImgPathFrontView, sImgPathRightView, sSavePath : String;
   public
     { Public declarations }
   end;
@@ -38,6 +46,22 @@ var
 implementation
 
 {$R *.dfm}
+
+procedure TForm1.bntSelectPathClick(Sender: TObject);
+var
+  ChosenDirectory: string;
+begin
+  // Show dialog starting from C:\, with custom title
+  if SelectDirectory('Select a Folder', 'C:\', ChosenDirectory) then
+  begin
+    ShowMessage('Selected: ' + ChosenDirectory);
+    sSavePath := ChosenDirectory;
+  end
+  else
+    ShowMessage('Selection cancelled');
+
+end;
+
 
 procedure TForm1.btnFrontClick(Sender: TObject);
 var
@@ -54,6 +78,7 @@ begin
       imgFront.Picture.LoadFromFile(OpenDialog.FileName);
       imgFront.Center := True;
       imgFront.Stretch := True;
+      sImgPathFrontView := OpenDialog.FileName;
     end;
   finally
     OpenDialog.Free;
@@ -61,7 +86,14 @@ begin
 
 end;
 
-procedure TForm1.btnSideClick(Sender: TObject);
+procedure TForm1.btnGenerateClick(Sender: TObject);
+begin
+  // Run an executable with parameters
+  ShellExecute(0, 'open', 'python.exe', 'C:\Not_Onedrive\GitHub\SIP-Project-2026\Python\V3.py 0 C:\Not_Onedrive\GitHub\SIP-Project-2026\Python\Images\square_30x30_filled.png C:\Not_Onedrive\GitHub\SIP-Project-2026\Python\Images\square_30x30_filled.png C:\Not_Onedrive\GitHub\SIP-Project-2026\Python\Images\square_30x30_filled.png test_cmd_005 C:\Users\ewanc\Downloads', nil, SW_HIDE);
+
+end;
+
+procedure TForm1.btnRightClick(Sender: TObject);
 var
   OpenDialog: TOpenDialog;
 begin
@@ -76,6 +108,7 @@ begin
       imgSide.Picture.LoadFromFile(OpenDialog.FileName);
       imgSide.Center := True;
       imgSide.Stretch := True;
+      sImgPathRightView := OpenDialog.FileName;
     end;
   finally
     OpenDialog.Free;
@@ -98,6 +131,7 @@ begin
       imgTop.Picture.LoadFromFile(OpenDialog.FileName);
       imgTop.Center := True;
       imgTop.Stretch := True;
+      sImgPathTopView := OpenDialog.FileName;
     end;
   finally
     OpenDialog.Free;

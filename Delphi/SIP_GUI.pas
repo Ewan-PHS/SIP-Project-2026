@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Imaging.pngimage, Vcl.Imaging.jpeg, Vcl.StdCtrls, Vcl.ExtCtrls, ShellApi;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Imaging.pngimage, Vcl.Imaging.jpeg, Vcl.StdCtrls, Vcl.ExtCtrls, ShellApi, FileCtrl;
 
 type
   TForm1 = class(TForm)
@@ -23,17 +23,19 @@ type
     imgTop: TImage;
     imgSide: TImage;
     lblTitle: TLabel;
-    Name: TEdit;
-    SavePath: TEdit;
-    lblSavePath: TLabel;
+    edtName: TEdit;
     lblName: TLabel;
+    bntSelectPath: TButton;
+    tmr10ms: TTimer;
     procedure btnFrontClick(Sender: TObject);
     procedure btnTopClick(Sender: TObject);
     procedure btnRightClick(Sender: TObject);
     procedure btnGenerateClick(Sender: TObject);
+    procedure bntSelectPathClick(Sender: TObject);
+    procedure tmr10msTimer(Sender: TObject);
   private
     var
-      sImgPathTopView, sImgPathFrontView, sImgPathRightView : String;
+      sImgPathTopView, sImgPathFrontView, sImgPathRightView, sSavePath : String;
   public
     { Public declarations }
   end;
@@ -44,6 +46,21 @@ var
 implementation
 
 {$R *.dfm}
+
+procedure TForm1.bntSelectPathClick(Sender: TObject);
+var
+  ChosenDirectory: string;
+begin
+  // Show dialog starting from C:\, with custom title
+  if SelectDirectory('Select a Folder', 'C:\', ChosenDirectory) then
+  begin
+    ShowMessage('Selected: ' + ChosenDirectory);
+    sSavePath := ChosenDirectory;
+  end
+  else
+    ShowMessage('Selection cancelled');
+
+end;
 
 procedure TForm1.btnFrontClick(Sender: TObject);
 var
@@ -69,9 +86,17 @@ begin
 end;
 
 procedure TForm1.btnGenerateClick(Sender: TObject);
+var
+  sPythonCommand: String;
 begin
+  sPythonCommand := 'C:\Not_Onedrive\GitHub\SIP-Project-2026\Python\V3.py 0';
+  sPythonCommand := sPythonCommand + ' ' + sImgPathTopView;
+  sPythonCommand := sPythonCommand + ' ' + sImgPathFrontView;
+  sPythonCommand := sPythonCommand + ' ' + sImgPathRightView;
+  sPythonCommand := sPythonCommand + ' ' + edtName.Text;
+  sPythonCommand := sPythonCommand + ' ' + sSavePath;
   // Run an executable with parameters
-  ShellExecute(0, 'open', 'python.exe', 'C:\Not_Onedrive\GitHub\SIP-Project-2026\Python\V3.py 0 C:\Not_Onedrive\GitHub\SIP-Project-2026\Python\Images\square_30x30_filled.png C:\Not_Onedrive\GitHub\SIP-Project-2026\Python\Images\square_30x30_filled.png C:\Not_Onedrive\GitHub\SIP-Project-2026\Python\Images\square_30x30_filled.png test_cmd_003 C:\Users\ewanc\Downloads', nil, SW_SHOWNORMAL);
+  ShellExecute(0, 'open', 'python.exe', PWideChar(sPythonCommand), nil, SW_HIDE);
 
 end;
 
@@ -117,6 +142,19 @@ begin
     end;
   finally
     OpenDialog.Free;
+  end;
+
+end;
+
+procedure TForm1.tmr10msTimer(Sender: TObject);
+begin
+  if (sImgPathRightView <> '') and (sImgPathTopView <> '') and (sImgPathFrontView <> '') and (sSavePath <> '') and (edtName.Text <> '') then
+  begin
+    btnGenerate.Enabled := True;
+  end
+  else
+  begin
+    btnGenerate.Enabled := False;
   end;
 
 end;
