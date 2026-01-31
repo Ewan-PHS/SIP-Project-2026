@@ -5,15 +5,16 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Imaging.pngimage, Vcl.Imaging.jpeg, Vcl.StdCtrls, Vcl.ExtCtrls, ShellApi, FileCtrl;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Imaging.pngimage, Vcl.Imaging.jpeg, Vcl.StdCtrls, Vcl.ExtCtrls,
+  ShellApi, FileCtrl, System.IOUtils;
 
 type
-  TForm1 = class(TForm)
+  TfrmMain = class(TForm)
     btnTop: TButton;
     btnFront: TButton;
     btnRight: TButton;
     pnlPreview: TPanel;
-    Image4: TImage;
+    imgPreview3DModel: TImage;
     lblPreview: TLabel;
     btnGenerate: TButton;
     pnlFrontView: TPanel;
@@ -33,21 +34,116 @@ type
     procedure btnGenerateClick(Sender: TObject);
     procedure bntSelectPathClick(Sender: TObject);
     procedure tmr10msTimer(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     var
-      sImgPathTopView, sImgPathFrontView, sImgPathRightView, sSavePath : String;
+      sImgPathTopView, sImgPathFrontView, sImgPathRightView, sSavePath, sName, sSiteForgePath : String;
+
+    function OpenImageFileSelect(): String;
+    function ShellExecute_AndWait(FileName: string; Params: string): bool;
   public
     { Public declarations }
   end;
 
 var
-  Form1: TForm1;
+  frmMain: TfrmMain;
 
 implementation
 
 {$R *.dfm}
 
-procedure TForm1.bntSelectPathClick(Sender: TObject);
+function TfrmMain.OpenImageFileSelect(): String;
+var
+  OpenDialog: TOpenDialog;
+begin
+  OpenDialog := TOpenDialog.Create(nil);
+  try
+    OpenDialog.Filter := 'Image files|*.png;*.jpg;*.jpeg;*.bmp';
+    OpenDialog.Options := [ofFileMustExist];
+
+    if OpenDialog.Execute then
+    begin
+      Result := OpenDialog.FileName;
+    end;
+  finally
+    OpenDialog.Free;
+  end;
+
+end;
+
+function TfrmMain.ShellExecute_AndWait(FileName: string; Params: string): bool;
+var
+  exInfo: TShellExecuteInfo;
+  Ph: DWORD;
+begin
+
+  FillChar(exInfo, SizeOf(exInfo), 0);
+  with exInfo do
+  begin
+    cbSize := SizeOf(exInfo);
+    fMask := SEE_MASK_NOCLOSEPROCESS or SEE_MASK_FLAG_DDEWAIT;
+    Wnd := GetActiveWindow();
+    exInfo.lpVerb := 'open';
+    exInfo.lpParameters := PChar(Params);
+    lpFile := PChar(FileName);
+    nShow := SW_HIDE;
+  end;
+  if ShellExecuteEx(@exInfo) then
+    Ph := exInfo.hProcess
+  else
+  begin
+    ShowMessage(SysErrorMessage(GetLastError));
+    Result := true;
+    exit;
+  end;
+  while WaitForSingleObject(exInfo.hProcess, 50) <> WAIT_OBJECT_0 do
+    Application.ProcessMessages;
+  CloseHandle(Ph);
+
+  Result := true;
+
+end;
+
+procedure TfrmMain.btnRightClick(Sender: TObject);
+var
+  sFilePath: String;
+begin
+  sFilePath := OpenImageFileSelect();
+
+  imgSide.Picture.LoadFromFile(sFilePath);
+  imgSide.Center := True;
+  imgSide.Stretch := True;
+  sImgPathRightView := sFilePath;
+
+end;
+
+procedure TfrmMain.btnTopClick(Sender: TObject);
+var
+  sFilePath: String;
+begin
+  sFilePath := OpenImageFileSelect();
+
+  imgTop.Picture.LoadFromFile(sFilePath);
+  imgTop.Center := True;
+  imgTop.Stretch := True;
+  sImgPathTopView := sFilePath;
+
+end;
+
+procedure TfrmMain.btnFrontClick(Sender: TObject);
+var
+  sFilePath: String;
+begin
+  sFilePath := OpenImageFileSelect();
+
+  imgFront.Picture.LoadFromFile(sFilePath);
+  imgFront.Center := True;
+  imgFront.Stretch := True;
+  sImgPathFrontView := sFilePath;
+
+end;
+
+procedure TfrmMain.bntSelectPathClick(Sender: TObject);
 var
   ChosenDirectory: string;
 begin
@@ -62,100 +158,41 @@ begin
 
 end;
 
-procedure TForm1.btnFrontClick(Sender: TObject);
+procedure TfrmMain.btnGenerateClick(Sender: TObject);
 var
-  OpenDialog: TOpenDialog;
-begin
-  OpenDialog := TOpenDialog.Create(nil);
-  try
-
-    OpenDialog.Filter := 'Image files|*.png;*.jpg;*.jpeg;*.bmp';
-    OpenDialog.Options := [ofFileMustExist];
-
-    if OpenDialog.Execute then
-    begin
-      imgFront.Picture.LoadFromFile(OpenDialog.FileName);
-      imgFront.Center := True;
-      imgFront.Stretch := True;
-      sImgPathFrontView := OpenDialog.FileName;
-    end;
-  finally
-    OpenDialog.Free;
-  end;
-
-end;
-
-procedure TForm1.btnGenerateClick(Sender: TObject);
-var
-  sPythonCommand: String;
+  sPythonCommand, sRenderedModelPath: String;
+  SEInfo: TShellExecuteInfo;
+  ExitCode: DWORD;
 begin
   sPythonCommand := 'C:\Not_Onedrive\GitHub\SIP-Project-2026\Python\V3.py 0';
   sPythonCommand := sPythonCommand + ' ' + sImgPathTopView;
   sPythonCommand := sPythonCommand + ' ' + sImgPathFrontView;
   sPythonCommand := sPythonCommand + ' ' + sImgPathRightView;
-  sPythonCommand := sPythonCommand + ' ' + edtName.Text;
+  sPythonCommand := sPythonCommand + ' ' + sName;
   sPythonCommand := sPythonCommand + ' ' + sSavePath;
-  // Run an executable with parameters
-  ShellExecute(0, 'open', 'python.exe', PWideChar(sPythonCommand), nil, SW_HIDE);
+
+  sRenderedModelPath := sSiteForgePath + '\renders\rendered_' + sName + '.png';
+
+  if ShellExecute_AndWait('python.exe', sPythonCommand) then
+    imgPreview3DModel.Picture.LoadFromFile(sRenderedModelPath);
 
 end;
 
-procedure TForm1.btnRightClick(Sender: TObject);
-var
-  OpenDialog: TOpenDialog;
+procedure TfrmMain.FormCreate(Sender: TObject);
 begin
-  OpenDialog := TOpenDialog.Create(nil);
-  try
-
-    OpenDialog.Filter := 'Image files|*.png;*.jpg;*.jpeg;*.bmp';
-    OpenDialog.Options := [ofFileMustExist];
-
-    if OpenDialog.Execute then
-    begin
-      imgSide.Picture.LoadFromFile(OpenDialog.FileName);
-      imgSide.Center := True;
-      imgSide.Stretch := True;
-      sImgPathRightView := OpenDialog.FileName;
-    end;
-  finally
-    OpenDialog.Free;
-  end;
-
+  sSiteForgePath := TPath.GetHomePath;
+  Delete(sSiteForgePath, Length(sSiteForgePath) - 6, 7);
+  sSiteForgePath := sSiteForgePath + 'Local\SiteForge';
 end;
 
-procedure TForm1.btnTopClick(Sender: TObject);
-var
-  OpenDialog: TOpenDialog;
+procedure TfrmMain.tmr10msTimer(Sender: TObject);
 begin
-  OpenDialog := TOpenDialog.Create(nil);
-  try
+  sName := edtName.Text;
 
-    OpenDialog.Filter := 'Image files|*.png;*.jpg;*.jpeg;*.bmp';
-    OpenDialog.Options := [ofFileMustExist];
-
-    if OpenDialog.Execute then
-    begin
-      imgTop.Picture.LoadFromFile(OpenDialog.FileName);
-      imgTop.Center := True;
-      imgTop.Stretch := True;
-      sImgPathTopView := OpenDialog.FileName;
-    end;
-  finally
-    OpenDialog.Free;
-  end;
-
-end;
-
-procedure TForm1.tmr10msTimer(Sender: TObject);
-begin
   if (sImgPathRightView <> '') and (sImgPathTopView <> '') and (sImgPathFrontView <> '') and (sSavePath <> '') and (edtName.Text <> '') then
-  begin
-    btnGenerate.Enabled := True;
-  end
+    btnGenerate.Enabled := True
   else
-  begin
     btnGenerate.Enabled := False;
-  end;
 
 end;
 

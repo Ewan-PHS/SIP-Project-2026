@@ -1,4 +1,4 @@
-object Form1: TForm1
+object frmMain: TfrmMain
   Left = 0
   Top = 0
   Caption = 'SiteForge'
@@ -10,18 +10,19 @@ object Form1: TForm1
   Font.Height = -16
   Font.Name = 'Sitka Banner'
   Font.Style = []
+  OnCreate = FormCreate
   TextHeight = 23
   object lblTitle: TLabel
     Left = 136
     Top = 8
-    Width = 228
+    Width = 256
     Height = 92
     Caption = 'SiteForge'
     Font.Charset = ANSI_CHARSET
     Font.Color = clWindowText
     Font.Height = -64
-    Font.Name = 'Sitka Banner'
-    Font.Style = []
+    Font.Name = 'Sitka Heading Semibold'
+    Font.Style = [fsBold, fsItalic]
     ParentFont = False
   end
   object lblName: TLabel
@@ -64,7 +65,7 @@ object Form1: TForm1
     Width = 337
     Height = 376
     TabOrder = 3
-    object Image4: TImage
+    object imgPreview3DModel: TImage
       Left = 8
       Top = 48
       Width = 321
