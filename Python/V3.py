@@ -29,7 +29,7 @@ import argparse
 # print(torch.__version__)
 # print("CUDA available:", torch.cuda.is_available())
 
-def filter_point_cloud_x3points(input, iterations):
+def filter_point_cloud_x3points(input):
     # Load your point cloud
     # pcd = o3d.io.read_point_cloud(input)  # or .xyz, .pcd, etc.
     pcd = input
@@ -105,7 +105,7 @@ def pixel_iterating_gpu(width1, height1, pixels1, width2, height2, pixels2, widt
 
     output_cpu = (torch.cat(out, dim=0)).cpu()
     np_points_out = output_cpu.numpy().astype(float)
-    print(np_points_out)
+    # print(np_points_out)
     return np_points_out
 
 ################################################################################################################
@@ -171,7 +171,7 @@ def x3images_to_point_cloud(img01, img02, img03):
     width_2, height_2 = img02.size
     width_3, height_3 = img03.size
 
-    generated_point_set = []
+    # generated_point_set = []
 
     img_1_colours = Counter(img01.get_flattened_data())
     img_2_colours = Counter(img02.get_flattened_data())
@@ -190,17 +190,17 @@ def x3images_to_point_cloud(img01, img02, img03):
     if (0, 0, 0) in unique_colours[0]:
         unique_colours[0].remove((0, 0, 0))
         unique_colours[0].append((256, 256, 256))
-        print("black space removed")
+        # print("black space removed")
 
-    print("Unique colours:")
-    print(unique_colours)
+    # print("Unique colours:")
+    # print(unique_colours)
 
     tot_colours_img_1 = img01.getcolors()
     tot_colours_img_2 = img02.getcolors()
     tot_colours_img_3 = img03.getcolors()
 
     repeat_iteration = max(len(tot_colours_img_1), len(tot_colours_img_2), len(tot_colours_img_3))
-    print("No. iterations to go through: "+str(repeat_iteration))
+    # print("No. iterations to go through: "+str(repeat_iteration))
 
     filtered_pc = o3d.geometry.PointCloud()
 
@@ -213,18 +213,18 @@ def x3images_to_point_cloud(img01, img02, img03):
                                                                                                                                          #  R                        G                        B
         point_set = (pixel_iterating_gpu(height_1, width_1, pixels01, height_2, width_2, pixels02, height_3, width_3, pixels03, unique_colours[0][i][0], unique_colours[0][i][1], unique_colours[0][i][2]))
         
-        print(point_set)
+        # print(point_set)
 
         # Put points into point cloud
         point_cloud.points = o3d.utility.Vector3dVector(point_set)
         if len(point_set) > 0:
-            filtered_pc = filtered_pc + filter_point_cloud_x3points(point_cloud, repeat_iteration)
+            filtered_pc = filtered_pc + filter_point_cloud_x3points(point_cloud)
         else:
             filtered_pc = filtered_pc
 
-        print("Iteration: "+str(i))
-        print(unique_colours[0][i])
-        print(f"{unique_colours[0][i][0]}, {unique_colours[0][i][1]}, {unique_colours[0][i][2]}")
+        # print("Iteration: "+str(i))
+        # print(unique_colours[0][i])
+        # print(f"{unique_colours[0][i][0]}, {unique_colours[0][i][1]}, {unique_colours[0][i][2]}")
     # generated_point_set = [list(x) for x in set(map(tuple, generated_point_set))]
 
 ################################################################################################################
@@ -293,10 +293,10 @@ def display_point_cloud(image_1, image_2, image_3):
     pcd = x3images_to_point_cloud(img_1, img_2, img_3)
 
     # Add axis
-    axis = o3d.geometry.TriangleMesh.create_coordinate_frame(size=2, origin=pcd.get_center())
+    # axis = o3d.geometry.TriangleMesh.create_coordinate_frame(size=2, origin=pcd.get_center())
 
     # display_point_cloud.pc = [pcd, axis]
-    return [pcd, axis]
+    return [pcd]# , axis]
 
 
 def save_file_path():
