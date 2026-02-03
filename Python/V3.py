@@ -1,3 +1,4 @@
+### Imports ###
 # import math
 from PIL import Image
 import meshlib.mrcudapy
@@ -24,10 +25,6 @@ import os
 import meshio
 import argparse
 
-# print(torch.cuda.is_available())
-# print(torch.cuda.get_device_name(0))
-# print(torch.__version__)
-# print("CUDA available:", torch.cuda.is_available())
 
 def filter_point_cloud_x3points(input):
     # Load your point cloud
@@ -56,7 +53,9 @@ def filter_point_cloud_x3points(input):
 
 
 ################################################################################################################
-# def pixel_iterating_gpu(pixels1, pixels2, pixels3, width1, height1, width2, height2, width3, height3, r, g, b):
+# Current function used to filter the pixels by colour
+# Much faster as is run on the GPU
+
 def pixel_iterating_gpu(width1, height1, pixels1, width2, height2, pixels2, width3, height3, pixels3, r, g, b):
     device = torch.device("cuda")
 
@@ -109,6 +108,10 @@ def pixel_iterating_gpu(width1, height1, pixels1, width2, height2, pixels2, widt
     return np_points_out
 
 ################################################################################################################
+# Old method that was used to filter the pixels by colour
+# Replaced due to taking extended periods of time to run
+# Slower as is run on the CPU
+
 # def pixel_iterating(width1, height1, pixels1, width2, height2, pixels2, width3, height3, pixels3, r, g, b):
 #     generated_point_set = []
     
@@ -162,6 +165,7 @@ def x3images_to_point_cloud(img01, img02, img03):
     pixels_2 = np.asarray(img02, dtype=np.uint8)
     pixels_3 = np.asarray(img03, dtype=np.uint8)
 
+    # Creates duplicate of pixel data to allow it to be editable by the code
     pixels01 = pixels_1.copy()
     pixels02 = pixels_2.copy()
     pixels03 = pixels_3.copy()
@@ -171,27 +175,28 @@ def x3images_to_point_cloud(img01, img02, img03):
     width_2, height_2 = img02.size
     width_3, height_3 = img03.size
 
-    # generated_point_set = []
-
+    # Get the pixel data, e.g. (R, G, B)
     img_1_colours = Counter(img01.get_flattened_data())
     img_2_colours = Counter(img02.get_flattened_data())
     img_3_colours = Counter(img03.get_flattened_data())
 
+    # Create an array to store a list of the unique colours
     total_unique_colours = []
 
+    # Adding the unique colours from each image the the array
     total_unique_colours.append(list(set(img_1_colours.keys())))
     total_unique_colours.append(list(set(img_2_colours.keys())))
     total_unique_colours.append(list(set(img_3_colours.keys())))
 
-    # total_unique_colours_set = set(total_unique_colours)
-
     unique_colours = list(total_unique_colours)
 
+    # Removes black as a colour as it represents empty space, it is then replaced by a non-existant colour
     if (0, 0, 0) in unique_colours[0]:
         unique_colours[0].remove((0, 0, 0))
         unique_colours[0].append((256, 256, 256))
         # print("black space removed")
 
+    # Code for debugging
     # print("Unique colours:")
     # print(unique_colours)
 
@@ -200,6 +205,8 @@ def x3images_to_point_cloud(img01, img02, img03):
     tot_colours_img_3 = img03.getcolors()
 
     repeat_iteration = max(len(tot_colours_img_1), len(tot_colours_img_2), len(tot_colours_img_3))
+
+    # Code for debugging
     # print("No. iterations to go through: "+str(repeat_iteration))
 
     filtered_pc = o3d.geometry.PointCloud()
@@ -213,6 +220,7 @@ def x3images_to_point_cloud(img01, img02, img03):
                                                                                                                                          #  R                        G                        B
         point_set = (pixel_iterating_gpu(height_1, width_1, pixels01, height_2, width_2, pixels02, height_3, width_3, pixels03, unique_colours[0][i][0], unique_colours[0][i][1], unique_colours[0][i][2]))
         
+        # Code for debugging
         # print(point_set)
 
         # Put points into point cloud
@@ -222,13 +230,17 @@ def x3images_to_point_cloud(img01, img02, img03):
         else:
             filtered_pc = filtered_pc
 
+        # Code for debugging
         # print("Iteration: "+str(i))
         # print(unique_colours[0][i])
         # print(f"{unique_colours[0][i][0]}, {unique_colours[0][i][1]}, {unique_colours[0][i][2]}")
+
+    # Code for debugging
     # generated_point_set = [list(x) for x in set(map(tuple, generated_point_set))]
 
 ################################################################################################################
 
+    # Outdated code for visualising the point cloud
     # # Create point cloud
     # point_cloud = o3d.geometry.PointCloud()
 
@@ -241,8 +253,11 @@ def x3images_to_point_cloud(img01, img02, img03):
     # # Filtering point cloud
     # filtered_pc = filter_point_cloud_x3points(point_cloud, repeat_iteration)
 
+    # Removing duplicate points
     filtered_pc.remove_duplicated_points()
-    print(filtered_pc)
+
+    # Code for debugging
+    # print(filtered_pc)
     return filtered_pc
 
 
@@ -258,7 +273,9 @@ def select_img_1():
 
 
 def path_1():
+    # Code for debugging
     # print(img_1_path)
+
     return img_1_path
 
 
@@ -269,7 +286,9 @@ def select_img_2():
 
 
 def path_2():
+    # Code for debugging
     # print(img_2_path)
+
     return img_2_path
 
 
@@ -280,7 +299,9 @@ def select_img_3():
 
 
 def path_3():
+    # Code for debugging
     # print(img_3_path)
+
     return img_3_path
 
 
@@ -292,10 +313,11 @@ def display_point_cloud(image_1, image_2, image_3):
 
     pcd = x3images_to_point_cloud(img_1, img_2, img_3)
 
+    # Code for debugging
     # Add axis
     # axis = o3d.geometry.TriangleMesh.create_coordinate_frame(size=2, origin=pcd.get_center())
-
     # display_point_cloud.pc = [pcd, axis]
+
     return [pcd]# , axis]
 
 
@@ -319,16 +341,6 @@ def save_file_name():
 
 def file_name():
     return file_name_saved
-
-
-# def threading_for_gen():
-#     t1 = Thread(target=save_file_path)
-#     t1.start()
-
-
-# def close_tkinter_window():
-#     root.quit()
-#     root.destroy()
 
 
 # CODE STARTS HERE:
@@ -400,6 +412,7 @@ pcd_load = display_point_cloud(img_1_path, img_2_path, img_3_path)[0]
 
 xyz_load = np.asarray(pcd_load.points)
 
+# Checks where to get the name and path from, depending on the enabled/disabled state of the GUI
 if args.opengui == 1:
     path_to_save = file_path()
     name_to_save = file_name()
@@ -410,7 +423,7 @@ if args.opengui == 0:
 
 # print(xyz_load)
 
-# Below is code for PyVista
+# Below is code for PyVista ####### NOW UNUSED
 # # points is a 3D numpy array (n_points, 3)
 # cloud = pv.PolyData(xyz_load)
 # # cloud.plot()
@@ -428,7 +441,7 @@ if args.opengui == 0:
 points = meshlib.mrmeshnumpy.pointCloudFromPoints(xyz_load)
 
 # Generate mesh from point cloud
-
+# Unneeded parameters
 # params = meshlib.mrmeshpy.TriangulationParameters()
 # params.radius = 4
 mesh = meshlib.mrmeshpy.triangulatePointCloud(points)#, params)
@@ -436,6 +449,7 @@ mesh = meshlib.mrmeshpy.triangulatePointCloud(points)#, params)
 # Getting the path of Appdata/local to store tmp files. Creating folders in Appdata local for the app
 appdata_local = os.getenv('LOCALAPPDATA')
 
+# Creating folders for the app
 SiteForge_dir = os.path.join(appdata_local, 'SiteForge')
 os.makedirs(SiteForge_dir, exist_ok=True)
 
@@ -445,21 +459,28 @@ os.makedirs(SiteForge_tmp_dir, exist_ok=True)
 SiteForge_render_dir = os.path.join(SiteForge_dir, 'renders')
 os.makedirs(SiteForge_render_dir, exist_ok=True)
 
+# Temporarliy saving the mesh a .ply
 meshlib.mrmeshpy.saveMesh(mesh, (f'{SiteForge_tmp_dir}\\{name_to_save}_tmp.ply'))
 
+# Loading the mesh
 v, f = pcu.load_mesh_vf(f'{SiteForge_tmp_dir}\\{name_to_save}_tmp.ply')
 
+# Deleting temporary .ply mesh
 if os.path.exists(f'{SiteForge_tmp_dir}\\{name_to_save}_tmp.ply'):
     os.remove(f'{SiteForge_tmp_dir}\\{name_to_save}_tmp.ply')
     print("tmp .ply deleted.")
 
+# Setting the parameter for making the mesh 'watertight' / have no holes
 resolution = 12500
 v_watertight, f_watertight = pcu.make_mesh_watertight(v, f, resolution=resolution)
 
+# Temporarliy saving the mesh a .ply
 pcu.save_mesh_vf(v=v_watertight, f=f_watertight, filename=(f'{SiteForge_tmp_dir}\\{name_to_save}_tmp-final.ply'))
 
+# Loading the mesh
 output_mesh = meshio.read(f'{SiteForge_tmp_dir}\\{name_to_save}_tmp-final.ply')
 
+# Deleting temporary .ply mesh
 if os.path.exists(f'{SiteForge_tmp_dir}\\{name_to_save}_tmp-final.ply'):
     os.remove(f'{SiteForge_tmp_dir}\\{name_to_save}_tmp-final.ply')
     print("tmp-final .ply deleted.")
@@ -467,46 +488,54 @@ if os.path.exists(f'{SiteForge_tmp_dir}\\{name_to_save}_tmp-final.ply'):
 # To get the end time of execution
 end_time = time.perf_counter()
 
-# Save the resulting mesh
+# Save the resulting mesh as a .stl
 meshio.write((f'{path_to_save}\\{name_to_save}.stl'), output_mesh)
 
+# Get the time of save
 end_save_time = time.perf_counter()
 
+# Setup the rendering window
 render = o3d.visualization.Visualizer()
 render.create_window(width=321, height=321, visible=False) 
 
+# Loading and importing the mesh to the window and calculating it's normals
 mesh_to_render = o3d.io.read_triangle_mesh(f'{path_to_save}\\{name_to_save}.stl')
 mesh_to_render.compute_vertex_normals()
 mesh_to_render.compute_triangle_normals()
 render.add_geometry(mesh_to_render)
 
+# Scaling the mesh
 ctr = render.get_view_control()
 bbox = mesh_to_render.get_axis_aligned_bounding_box()
 center = bbox.get_center()
 extent = np.linalg.norm(bbox.get_extent())
 mesh_to_render.scale(0.95, center=bbox.get_center())
 
+# Setting the camera angle, position and zoom
 ctr.set_lookat(center)
 ctr.set_front([-1, -1, -1])  # camera direction
 ctr.set_up([0, -1, 0])
 ctr.set_zoom(1)
 
+# Setting background and mesh colour
 opt = render.get_render_option()
-opt.background_color = np.array([0, 0, 0])   # black background
+opt.background_color = np.array([0, 0, 0])   # R, G, B
 opt.mesh_show_back_face = True
 opt.light_on = True
 opt.mesh_color_option = o3d.visualization.MeshColorOption.Default
 
 render.poll_events()
 render.update_renderer()
-# render.poll_events()
-# render.update_renderer()
 
+# Render and save the image of the mesh
 image = render.capture_screen_image(f'{SiteForge_render_dir}\\rendered_{name_to_save}.png', do_render=True)
+# Close the rendering window
 render.destroy_window()
 
+# Get time of the render ending
 end_render_time = time.perf_counter()
 
+# Printing telementry data for testing
 print(f"""
 ################################################
 Name: {name_to_save}
@@ -516,8 +545,9 @@ Render time: {end_render_time - end_save_time} seconds
 ################################################
 """)
 
+# Unused code for visualising the mesh
 # meshlib.mrviewerpy.addMeshToScene(mesh, f"{name_to_save}.stl")
 # meshlib.mrviewerpy.launch()
 
-# # Displaying point cloud
+# # Unused code for displaying point cloud ##### OLD
 # o3d.visualization.draw_geometries(display_point_cloud(img_1_path, img_2_path, img_3_path))
