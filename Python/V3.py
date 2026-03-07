@@ -1,5 +1,7 @@
 ### Imports ###
 # import math
+from ast import arg
+
 from PIL import Image
 import meshlib.mrcudapy
 import meshlib.mrmeshnumpy
@@ -26,30 +28,30 @@ import meshio
 import argparse
 
 
-def filter_point_cloud_x3points(input):
-    # Load your point cloud
-    # pcd = o3d.io.read_point_cloud(input)  # or .xyz, .pcd, etc.
-    pcd = input
+# def filter_point_cloud_x3points(input):
+#     # Load your point cloud
+#     # pcd = o3d.io.read_point_cloud(input)  # or .xyz, .pcd, etc.
+#     pcd = input
 
-    # Use DBSCAN to cluster the point cloud
-    labels = np.array(pcd.cluster_dbscan(eps=0.05, min_points=1, print_progress=False))
+#     # Use DBSCAN to cluster the point cloud
+#     labels = np.array(pcd.cluster_dbscan(eps=0.05, min_points=1, print_progress=False))
 
-    # Get number of clusters
-    max_label = labels.max()
+#     # Get number of clusters
+#     max_label = labels.max()
 
-    # Collect only clusters with exactly 3 points
-    filtered_points = []
+#     # Collect only clusters with exactly 3 points
+#     filtered_points = []
 
-    for i in range(max_label + 1):
-        indices = np.where(labels == i)[0]
-        if len(indices) == 3: #3:
-            cluster_points = np.asarray(pcd.points)[indices]
-            filtered_points.extend(cluster_points)
+#     for i in range(max_label + 1):
+#         indices = np.where(labels == i)[0]
+#         if len(indices) == 3: #3:
+#             cluster_points = np.asarray(pcd.points)[indices]
+#             filtered_points.extend(cluster_points)
 
-    # Create new point cloud from filtered points
-    filtered_pcd = o3d.geometry.PointCloud()
-    filtered_pcd.points = o3d.utility.Vector3dVector(np.vstack(filtered_points))
-    return filtered_pcd
+#     # Create new point cloud from filtered points
+#     filtered_pcd = o3d.geometry.PointCloud()
+#     filtered_pcd.points = o3d.utility.Vector3dVector(np.vstack(filtered_points))
+#     return filtered_pcd
 
 
 ################################################################################################################
@@ -61,7 +63,9 @@ def pixel_iterating_gpu(width1, height1, pixels1, width2, height2, pixels2, widt
 
     color = torch.tensor([r, g, b], device=device)
 
-    out = []
+    outXY = []
+    outXZ = []
+    outYZ = []
 
     # ---------- XY ----------
     p1 = torch.from_numpy(pixels1).to(device)
@@ -74,7 +78,7 @@ def pixel_iterating_gpu(width1, height1, pixels1, width2, height2, pixels2, widt
     xy = xy.repeat(z1, 1)
     z = z.repeat_interleave(len(xy) // z1)
 
-    out.append(torch.stack([xy[:,1], xy[:,0], z - 0], dim=1))
+    outXY.append((torch.stack([xy[:,1], xy[:,0], z - 0], dim=1)).cpu())
 
     # ---------- XZ ----------
     p2 = torch.from_numpy(pixels2).to(device)
@@ -87,7 +91,7 @@ def pixel_iterating_gpu(width1, height1, pixels1, width2, height2, pixels2, widt
     xz = xz.repeat(z2, 1)
     z = z.repeat_interleave(len(xz) // z2)
 
-    out.append(torch.stack([xz[:,1], z - 1, xz[:,0]], dim=1))
+    outXZ.append((torch.stack([xz[:,1], z - 1, xz[:,0]], dim=1)).cpu())
 
     # ---------- YZ ----------
     p3 = torch.from_numpy(pixels3).to(device)
@@ -100,12 +104,25 @@ def pixel_iterating_gpu(width1, height1, pixels1, width2, height2, pixels2, widt
     yz = yz.repeat(z3, 1)
     z = z.repeat_interleave(len(yz) // z3)
 
-    out.append(torch.stack([z - 1, yz[:,0], yz[:,1]], dim=1))
+    outYZ.append((torch.stack([z - 1, yz[:,0], yz[:,1]], dim=1)).cpu())
 
-    output_cpu = (torch.cat(out, dim=0)).cpu()
-    np_points_out = output_cpu.numpy().astype(float)
+    # print(f"""
+    #       XY:{outXY[0].tolist()}
+    #       XZ:{outXZ[0].tolist()}
+    #       YZ:{outYZ[0].tolist()}
+    # """)
+    # LOT => List Of Tuples
+    outXY_LOT = [tuple(sublist) for sublist in outXY[0].tolist()]
+    outXZ_LOT = [tuple(sublist) for sublist in outXZ[0].tolist()]
+    outYZ_LOT = [tuple(sublist) for sublist in outYZ[0].tolist()]
+
+    out_intersected = (set.intersection(set(outXY_LOT), set(outXZ_LOT), set(outYZ_LOT)))
+    print(f"out_intersected: {out_intersected}")
+    # out_intersected_cpu = (torch.stack(out_intersected, dim=0)).cpu()
+
+    # np_points_out = output_cpu.numpy().astype(float)
     # print(np_points_out)
-    return np_points_out
+    return out_intersected
 
 ################################################################################################################
 # Old method that was used to filter the pixels by colour
@@ -209,14 +226,15 @@ def x3images_to_point_cloud(img01, img02, img03):
     # Code for debugging
     # print("No. iterations to go through: "+str(repeat_iteration))
 
-    filtered_pc = o3d.geometry.PointCloud()
+    # filtered_pc = o3d.geometry.PointCloud()
+    intersected_set = set()
 
     for i in range(repeat_iteration):
-        point_set = []
+        point_set = set()
         # Create point cloud
-        point_cloud = o3d.geometry.PointCloud()
+        # point_cloud = o3d.geometry.PointCloud()
 
-        point_cloud.clear()
+        point_set.clear()
                                                                                                                                          #  R                        G                        B
         point_set = (pixel_iterating_gpu(height_1, width_1, pixels01, height_2, width_2, pixels02, height_3, width_3, pixels03, unique_colours[0][i][0], unique_colours[0][i][1], unique_colours[0][i][2]))
         
@@ -224,11 +242,12 @@ def x3images_to_point_cloud(img01, img02, img03):
         # print(point_set)
 
         # Put points into point cloud
-        point_cloud.points = o3d.utility.Vector3dVector(point_set)
+        # point_cloud.points = o3d.utility.Vector3dVector(point_set)
+
         if len(point_set) > 0:
-            filtered_pc = filtered_pc + filter_point_cloud_x3points(point_cloud)
+            intersected_set = intersected_set.union(point_set)
         else:
-            filtered_pc = filtered_pc
+            ...
 
         # Code for debugging
         # print("Iteration: "+str(i))
@@ -254,11 +273,11 @@ def x3images_to_point_cloud(img01, img02, img03):
     # filtered_pc = filter_point_cloud_x3points(point_cloud, repeat_iteration)
 
     # Removing duplicate points
-    filtered_pc.remove_duplicated_points()
+    # filtered_pc.remove_duplicated_points()
 
     # Code for debugging
     # print(filtered_pc)
-    return filtered_pc
+    return intersected_set
 
 
 ################################################################################################################
@@ -345,14 +364,17 @@ def file_name():
 
 # CODE STARTS HERE:
 
-# Parser to allow for passing arguments when running the .py file
+# Parser to allow for passing arguments when running the .py file through cmd
 parser = argparse.ArgumentParser(description="A simple CLI tool.")
+
 parser.add_argument("opengui", type=int, help="Int, (0=False, 1=True), whether to open built-in the GUI.")
-parser.add_argument("TopViewPath", type=str, help="String, path for top-view image")
-parser.add_argument("FrontViewPath", type=str, help="String, path for front-view image")
-parser.add_argument("RightViewPath", type=str, help="String, path for right-view image")
-parser.add_argument("Name", type=str, help="String, name of 3D model")
-parser.add_argument("SavePath", type=str, default="C:\\Users\\ewanc\\Downloads", help="String, path to save the 3D model at")
+
+group_openGuiT = parser.add_argument_group()
+group_openGuiT.add_argument("-TopViewPath", type=str, help="String, path for top-view image")
+group_openGuiT.add_argument("-FrontViewPath", type=str, help="String, path for front-view image")
+group_openGuiT.add_argument("-RightViewPath", type=str, help="String, path for right-view image")
+group_openGuiT.add_argument("-Name", type=str, help="String, name of 3D model")
+group_openGuiT.add_argument("-SavePath", type=str, default="C:\\Users\\ewanc\\Downloads", help="String, path to save the 3D model at")
 
 args = parser.parse_args()
 
@@ -408,13 +430,17 @@ if args.opengui == 0:
 # To get start time of execution
 start_time = time.perf_counter()
 
-pcd_load = display_point_cloud(img_1_path, img_2_path, img_3_path)[0]
+pcd_load = list(display_point_cloud(img_1_path, img_2_path, img_3_path)[0])
+pcd_load = [list(elem) for elem in pcd_load]
+print(pcd_load)
 
-xyz_load = np.asarray(pcd_load.points)
+xyz_load = np.fromiter(pcd_load, dtype=np.int32, count=len(pcd_load))
+print(xyz_load.shape)
 
 # Checks where to get the name and path from, depending on the enabled/disabled state of the GUI
 if args.opengui == 1:
     path_to_save = file_path()
+    path_to_save = "C:\\Users\\ewanc\\Downloads"   # to save me from typing it out every time
     name_to_save = file_name()
 
 if args.opengui == 0:
