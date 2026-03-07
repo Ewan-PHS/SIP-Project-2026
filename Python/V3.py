@@ -111,13 +111,14 @@ def pixel_iterating_gpu(width1, height1, pixels1, width2, height2, pixels2, widt
     #       XZ:{outXZ[0].tolist()}
     #       YZ:{outYZ[0].tolist()}
     # """)
+
     # LOT => List Of Tuples
     outXY_LOT = [tuple(sublist) for sublist in outXY[0].tolist()]
     outXZ_LOT = [tuple(sublist) for sublist in outXZ[0].tolist()]
     outYZ_LOT = [tuple(sublist) for sublist in outYZ[0].tolist()]
 
     out_intersected = (set.intersection(set(outXY_LOT), set(outXZ_LOT), set(outYZ_LOT)))
-    print(f"out_intersected: {out_intersected}")
+    # print(f"out_intersected: {out_intersected}")
     # out_intersected_cpu = (torch.stack(out_intersected, dim=0)).cpu()
 
     # np_points_out = output_cpu.numpy().astype(float)
@@ -430,11 +431,12 @@ if args.opengui == 0:
 # To get start time of execution
 start_time = time.perf_counter()
 
-pcd_load = list(display_point_cloud(img_1_path, img_2_path, img_3_path)[0])
-pcd_load = [list(elem) for elem in pcd_load]
-print(pcd_load)
+pcd_load = list(display_point_cloud(img_1_path, img_2_path, img_3_path)[0])     # Convert the set to a list
+pcd_load = [list(elem) for elem in pcd_load]        # Convert the tuples that are contained within the list into lists
+print(f"pcd_load: {pcd_load}")
 
-xyz_load = np.fromiter(pcd_load, dtype=np.int32, count=len(pcd_load))
+# xyz_load = np.fromiter(pcd_load, dtype=np.int32, count=len(pcd_load))
+xyz_load = np.asarray(pcd_load).astype(float)
 print(xyz_load.shape)
 
 # Checks where to get the name and path from, depending on the enabled/disabled state of the GUI
