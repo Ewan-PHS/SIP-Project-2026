@@ -193,6 +193,10 @@ def x3images_to_point_cloud(img01, img02, img03):
     width_2, height_2 = img02.size
     width_3, height_3 = img03.size
 
+    # Keep the size of the images used to display as data at the end
+    global Image_Size 
+    Image_Size = f"{width_1} x {height_1}"
+
     # Get the pixel data, e.g. (R, G, B)
     img_1_colours = Counter(img01.get_flattened_data())
     img_2_colours = Counter(img02.get_flattened_data())
@@ -433,11 +437,11 @@ start_time = time.perf_counter()
 
 pcd_load = list(display_point_cloud(img_1_path, img_2_path, img_3_path)[0])     # Convert the set to a list
 pcd_load = [list(elem) for elem in pcd_load]        # Convert the tuples that are contained within the list into lists
-print(f"pcd_load: {pcd_load}")
+# print(f"pcd_load: {pcd_load}")
 
 # xyz_load = np.fromiter(pcd_load, dtype=np.int32, count=len(pcd_load))
 xyz_load = np.asarray(pcd_load).astype(float)
-print(xyz_load.shape)
+# print(xyz_load.shape)
 
 # Checks where to get the name and path from, depending on the enabled/disabled state of the GUI
 if args.opengui == 1:
@@ -567,6 +571,7 @@ end_render_time = time.perf_counter()
 print(f"""
 ################################################
 Name: {name_to_save}
+Image Size: {Image_Size} pixels
 Execution time: {end_time - start_time} seconds
 Save time: {end_save_time - end_time} seconds
 Render time: {end_render_time - end_save_time} seconds
