@@ -164,7 +164,7 @@ var
   SEInfo: TShellExecuteInfo;
   ExitCode: DWORD;
 begin
-  sPythonCommand := 'C:\Not_Onedrive\GitHub\SIP-Project-2026\Python\V3.py 0';
+  sPythonCommand := 'C:\Not_Onedrive\GitHub\SIP-Project-2026\Python\V4.py 0';
   sPythonCommand := sPythonCommand + ' ' + sImgPathTopView;
   sPythonCommand := sPythonCommand + ' ' + sImgPathFrontView;
   sPythonCommand := sPythonCommand + ' ' + sImgPathRightView;
