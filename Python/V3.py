@@ -54,7 +54,11 @@ def pixel_iterating_gpu(width1, height1, pixels1, width2, height2, pixels2, widt
 
     outXY.append((torch.stack([xy[:,1], xy[:,0], z - 0], dim=1)).cpu())
 
-    torch.cuda.empty_cache()
+    # p1 = torch.from_numpy(pixels1).to(device)
+    # mask1 = (p1 == color).all(dim=2)
+    # xy = torch.nonzero(mask1).cpu().numpy()
+
+    # xy_set = set(map(tuple, xy[:, [1,0]]))  # (x,y)
 
     # ---------- XZ ----------
     p2 = torch.from_numpy(pixels2).to(device)
@@ -69,7 +73,11 @@ def pixel_iterating_gpu(width1, height1, pixels1, width2, height2, pixels2, widt
 
     outXZ.append((torch.stack([xz[:,1], z - 1, xz[:,0]], dim=1)).cpu())
 
-    torch.cuda.empty_cache()
+    # p2 = torch.from_numpy(pixels2).to(device)
+    # mask2 = (p2 == color).all(dim=2)
+    # xz = torch.nonzero(mask2).cpu().numpy()
+
+    # xz_set = set(map(tuple, xz[:, [1,0]]))  # (x,z)
 
     # ---------- YZ ----------
     p3 = torch.from_numpy(pixels3).to(device)
@@ -84,8 +92,11 @@ def pixel_iterating_gpu(width1, height1, pixels1, width2, height2, pixels2, widt
 
     outYZ.append((torch.stack([z - 1, yz[:,0], yz[:,1]], dim=1)).cpu())
 
-    torch.cuda.empty_cache()
+    # p3 = torch.from_numpy(pixels3).to(device)
+    # mask3 = (p3 == color).all(dim=2)
+    # yz = torch.nonzero(mask3).cpu().numpy()
 
+    # yz_set = set(map(tuple, yz[:, [0,1]]))  # (y,z)
 
     # print(f"""
     #       XY:{outXY[0].tolist()}
@@ -93,15 +104,27 @@ def pixel_iterating_gpu(width1, height1, pixels1, width2, height2, pixels2, widt
     #       YZ:{outYZ[0].tolist()}
     # """)
 
-    # LOT => List Of Tuples
-    outXY_LOT = set(map(tuple, outXY[0].numpy()))
-    outXZ_LOT = set(map(tuple, outXY[0].numpy()))
-    outYZ_LOT = set(map(tuple, outXY[0].numpy()))
+    # SOT => Set Of Tuples
+    outXY_SOT = set(map(tuple, outXY[0].numpy()))
+    outXZ_SOT = set(map(tuple, outXZ[0].numpy()))
+    outYZ_SOT = set(map(tuple, outYZ[0].numpy()))
 
-    out_intersected = (set.intersection(set(outXY_LOT), set(outXZ_LOT), set(outYZ_LOT)))
+    # points = set()
+    # z1 = int(((height2 + height3) / 2) + 1)
+
+    # for x,y in xy_set:
+    #     for z in range(z1):
+    #         if (x,z) in xz_set and (y,z) in yz_set:
+    #             points.add((x,y,z))
+
+    out_intersected = outXY_SOT & outXZ_SOT & outYZ_SOT
+    # out_intersected = set.intersection(outXY_LOT, outXZ_LOT, outYZ_LOT)
     # print(f"out_intersected: {out_intersected}")
 
     return out_intersected
+
+
+################################################################################################################
 
 
 def x3images_to_point_cloud(img01, img02, img03):
@@ -183,8 +206,6 @@ def x3images_to_point_cloud(img01, img02, img03):
     return intersected_set
 
 
-################################################################################################################
-################################################################################################################
 ################################################################################################################
 
 
