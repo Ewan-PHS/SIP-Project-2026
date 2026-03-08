@@ -28,32 +28,6 @@ import meshio
 import argparse
 
 
-# def filter_point_cloud_x3points(input):
-#     # Load your point cloud
-#     # pcd = o3d.io.read_point_cloud(input)  # or .xyz, .pcd, etc.
-#     pcd = input
-
-#     # Use DBSCAN to cluster the point cloud
-#     labels = np.array(pcd.cluster_dbscan(eps=0.05, min_points=1, print_progress=False))
-
-#     # Get number of clusters
-#     max_label = labels.max()
-
-#     # Collect only clusters with exactly 3 points
-#     filtered_points = []
-
-#     for i in range(max_label + 1):
-#         indices = np.where(labels == i)[0]
-#         if len(indices) == 3: #3:
-#             cluster_points = np.asarray(pcd.points)[indices]
-#             filtered_points.extend(cluster_points)
-
-#     # Create new point cloud from filtered points
-#     filtered_pcd = o3d.geometry.PointCloud()
-#     filtered_pcd.points = o3d.utility.Vector3dVector(np.vstack(filtered_points))
-#     return filtered_pcd
-
-
 ################################################################################################################
 # Current function used to filter the pixels by colour
 # Much faster as is run on the GPU
@@ -80,6 +54,8 @@ def pixel_iterating_gpu(width1, height1, pixels1, width2, height2, pixels2, widt
 
     outXY.append((torch.stack([xy[:,1], xy[:,0], z - 0], dim=1)).cpu())
 
+    torch.cuda.empty_cache()
+
     # ---------- XZ ----------
     p2 = torch.from_numpy(pixels2).to(device)
     mask2 = (p2 == color).all(dim=2)
@@ -92,6 +68,8 @@ def pixel_iterating_gpu(width1, height1, pixels1, width2, height2, pixels2, widt
     z = z.repeat_interleave(len(xz) // z2)
 
     outXZ.append((torch.stack([xz[:,1], z - 1, xz[:,0]], dim=1)).cpu())
+
+    torch.cuda.empty_cache()
 
     # ---------- YZ ----------
     p3 = torch.from_numpy(pixels3).to(device)
@@ -106,6 +84,9 @@ def pixel_iterating_gpu(width1, height1, pixels1, width2, height2, pixels2, widt
 
     outYZ.append((torch.stack([z - 1, yz[:,0], yz[:,1]], dim=1)).cpu())
 
+    torch.cuda.empty_cache()
+
+
     # print(f"""
     #       XY:{outXY[0].tolist()}
     #       XZ:{outXZ[0].tolist()}
@@ -113,58 +94,14 @@ def pixel_iterating_gpu(width1, height1, pixels1, width2, height2, pixels2, widt
     # """)
 
     # LOT => List Of Tuples
-    outXY_LOT = [tuple(sublist) for sublist in outXY[0].tolist()]
-    outXZ_LOT = [tuple(sublist) for sublist in outXZ[0].tolist()]
-    outYZ_LOT = [tuple(sublist) for sublist in outYZ[0].tolist()]
+    outXY_LOT = set(map(tuple, outXY[0].numpy()))
+    outXZ_LOT = set(map(tuple, outXY[0].numpy()))
+    outYZ_LOT = set(map(tuple, outXY[0].numpy()))
 
     out_intersected = (set.intersection(set(outXY_LOT), set(outXZ_LOT), set(outYZ_LOT)))
     # print(f"out_intersected: {out_intersected}")
-    # out_intersected_cpu = (torch.stack(out_intersected, dim=0)).cpu()
 
-    # np_points_out = output_cpu.numpy().astype(float)
-    # print(np_points_out)
     return out_intersected
-
-################################################################################################################
-# Old method that was used to filter the pixels by colour
-# Replaced due to taking extended periods of time to run
-# Slower as is run on the CPU
-
-# def pixel_iterating(width1, height1, pixels1, width2, height2, pixels2, width3, height3, pixels3, r, g, b):
-#     generated_point_set = []
-    
-#     # Iterate through each pixel decide whether to add it to the point set
-#     # xy
-#     for z in range(int(((height2 + height3) / 2) + 1)):
-#         for x in range(width1):
-#             for y in range(height1):
-#                 r1, g1, b1 = pixels1[x, y]
-
-#                 if r1 == r and g1 == g and b1 == b:
-#                     generated_point_set.append([x, y, z - 1])
-
-#     # xz
-#     for z in range(int(((height1 + width3) / 2) + 1)):
-#         for x in range(width2):
-#             for y in range(height2):
-#                 r2, g2, b2 = pixels2[x, y]
-
-#                 if r2 == r and g2 == g and b2 == b:
-#                     generated_point_set.append([x, z - 1, y])
-
-#     # yz
-#     for z in range(int(((width1 + width2) / 2) + 1)):
-#         for x in range(width3):
-#             for y in range(height3):
-#                 r3, g3, b3 = pixels3[x, y]
-
-#                 if r3 == r and g3 == g and b3 == b:
-#                     generated_point_set.append([z - 1, y, x])
-    
-#     return generated_point_set
-
-
-################################################################################################################
 
 
 def x3images_to_point_cloud(img01, img02, img03):
@@ -172,11 +109,6 @@ def x3images_to_point_cloud(img01, img02, img03):
     img01 = img01.convert('RGB')
     img02 = img02.convert('RGB')
     img03 = img03.convert('RGB')
-
-    # Load the pixel data
-    # pixels_1 = img01.load()
-    # pixels_2 = img02.load()
-    # pixels_3 = img03.load()
 
     # Converting pixel data to numpy arrary
     pixels_1 = np.asarray(img01, dtype=np.uint8)
@@ -231,13 +163,10 @@ def x3images_to_point_cloud(img01, img02, img03):
     # Code for debugging
     # print("No. iterations to go through: "+str(repeat_iteration))
 
-    # filtered_pc = o3d.geometry.PointCloud()
     intersected_set = set()
 
     for i in range(repeat_iteration):
         point_set = set()
-        # Create point cloud
-        # point_cloud = o3d.geometry.PointCloud()
 
         point_set.clear()
                                                                                                                                          #  R                        G                        B
@@ -246,42 +175,11 @@ def x3images_to_point_cloud(img01, img02, img03):
         # Code for debugging
         # print(point_set)
 
-        # Put points into point cloud
-        # point_cloud.points = o3d.utility.Vector3dVector(point_set)
-
         if len(point_set) > 0:
             intersected_set = intersected_set.union(point_set)
         else:
             ...
 
-        # Code for debugging
-        # print("Iteration: "+str(i))
-        # print(unique_colours[0][i])
-        # print(f"{unique_colours[0][i][0]}, {unique_colours[0][i][1]}, {unique_colours[0][i][2]}")
-
-    # Code for debugging
-    # generated_point_set = [list(x) for x in set(map(tuple, generated_point_set))]
-
-################################################################################################################
-
-    # Outdated code for visualising the point cloud
-    # # Create point cloud
-    # point_cloud = o3d.geometry.PointCloud()
-
-    # # Put points into point cloud
-    # point_cloud.points = o3d.utility.Vector3dVector(generated_point_set)
-
-    # # Displaying point cloud
-    # # o3d.visualization.draw_geometries([point_cloud])
-
-    # # Filtering point cloud
-    # filtered_pc = filter_point_cloud_x3points(point_cloud, repeat_iteration)
-
-    # Removing duplicate points
-    # filtered_pc.remove_duplicated_points()
-
-    # Code for debugging
-    # print(filtered_pc)
     return intersected_set
 
 
@@ -337,12 +235,7 @@ def display_point_cloud(image_1, image_2, image_3):
 
     pcd = x3images_to_point_cloud(img_1, img_2, img_3)
 
-    # Code for debugging
-    # Add axis
-    # axis = o3d.geometry.TriangleMesh.create_coordinate_frame(size=2, origin=pcd.get_center())
-    # display_point_cloud.pc = [pcd, axis]
-
-    return [pcd]# , axis]
+    return [pcd]
 
 
 def save_file_path():
@@ -400,17 +293,11 @@ if args.opengui == 1:
     button_img_3 = tk.Button(root, text="Select Image 3, front", command=select_img_3)
     button_img_3.pack(pady=20)
 
-    # button_generate = tk.Button(root, text="Generate", command=display_point_cloud(im_1, im_2, im_3))
-    # button_generate.pack(pady=20)
-
     label = tk.Label(root, text="Path to save .stl file. E.g: C:\\Users\\<EXAMPLENAME>\\Downloads")
     label.pack(pady=0)
 
     file_save_path = tk.Entry(root, width=55, borderwidth=2)
     file_save_path.pack(pady=0)
-
-    # save_path = tk.Button(root, text="Save", command=save_file_path)
-    # save_path.pack(pady=0)
 
     label1 = tk.Label(root, text="""
     Name of .stl file""")
@@ -419,7 +306,6 @@ if args.opengui == 1:
     file_save_name = tk.Entry(root, width=35, borderwidth=2)
     file_save_name.pack(pady=0)
 
-    # exit_button = tk.Button(root, text="Close and generate", command=threading_for_gen)
     exit_button = tk.Button(root, text="Close and generate", command=save_file_path)
     exit_button.pack(pady=20)
 
@@ -439,7 +325,6 @@ pcd_load = list(display_point_cloud(img_1_path, img_2_path, img_3_path)[0])     
 pcd_load = [list(elem) for elem in pcd_load]        # Convert the tuples that are contained within the list into lists
 # print(f"pcd_load: {pcd_load}")
 
-# xyz_load = np.fromiter(pcd_load, dtype=np.int32, count=len(pcd_load))
 xyz_load = np.asarray(pcd_load).astype(float)
 # print(xyz_load.shape)
 
@@ -453,21 +338,6 @@ if args.opengui == 0:
     path_to_save = args.SavePath
     name_to_save = args.Name
 
-# print(xyz_load)
-
-# Below is code for PyVista ####### NOW UNUSED
-# # points is a 3D numpy array (n_points, 3)
-# cloud = pv.PolyData(xyz_load)
-# # cloud.plot()
-# print("Point cloud created.")
-
-# volume = cloud.delaunay_3d(alpha=1.)
-# shell = volume.extract_geometry()
-# mesh = shell.triangulate()
-# # mesh.plot()
-
-# mesh.save(f'{path_to_save}\\{name_to_save}.stl', binary=True)
-# print("Mesh saved.")
 
 # Below is code for MeshLib
 points = meshlib.mrmeshnumpy.pointCloudFromPoints(xyz_load)
@@ -577,10 +447,3 @@ Save time: {end_save_time - end_time} seconds
 Render time: {end_render_time - end_save_time} seconds
 ################################################
 """)
-
-# Unused code for visualising the mesh
-# meshlib.mrviewerpy.addMeshToScene(mesh, f"{name_to_save}.stl")
-# meshlib.mrviewerpy.launch()
-
-# # Unused code for displaying point cloud ##### OLD
-# o3d.visualization.draw_geometries(display_point_cloud(img_1_path, img_2_path, img_3_path))
