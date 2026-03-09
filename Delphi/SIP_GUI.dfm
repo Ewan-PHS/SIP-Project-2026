@@ -13,7 +13,7 @@ object frmMain: TfrmMain
   OnCreate = FormCreate
   TextHeight = 23
   object lblTitle: TLabel
-    Left = 136
+    Left = 34
     Top = 8
     Width = 256
     Height = 92

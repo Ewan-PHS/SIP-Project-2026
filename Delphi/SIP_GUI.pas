@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Imaging.pngimage, Vcl.Imaging.jpeg, Vcl.StdCtrls, Vcl.ExtCtrls,
-  ShellApi, FileCtrl, System.IOUtils;
+  ShellApi, FileCtrl, System.IOUtils, Vcl.Skia;
 
 type
   TfrmMain = class(TForm)
