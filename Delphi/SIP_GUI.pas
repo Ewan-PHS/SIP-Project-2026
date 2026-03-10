@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Imaging.pngimage, Vcl.Imaging.jpeg, Vcl.StdCtrls, Vcl.ExtCtrls,
-  ShellApi, FileCtrl, System.IOUtils, Vcl.Skia;
+  ShellApi, FileCtrl, System.IOUtils, Vcl.Skia, System.Skia;
 
 type
   TfrmMain = class(TForm)
@@ -23,11 +23,12 @@ type
     pnlRightView: TPanel;
     imgTop: TImage;
     imgSide: TImage;
-    lblTitle: TLabel;
     edtName: TEdit;
     lblName: TLabel;
     bntSelectPath: TButton;
     tmr10ms: TTimer;
+    svgName_Site: TSkSvg;
+    svgName_Forge: TSkSvg;
     procedure btnFrontClick(Sender: TObject);
     procedure btnTopClick(Sender: TObject);
     procedure btnRightClick(Sender: TObject);
