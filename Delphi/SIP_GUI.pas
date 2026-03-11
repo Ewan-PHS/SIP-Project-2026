@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Imaging.pngimage, Vcl.Imaging.jpeg, Vcl.StdCtrls, Vcl.ExtCtrls,
-  ShellApi, FileCtrl, System.IOUtils, Vcl.Skia, System.Skia;
+  ShellApi, FileCtrl, System.IOUtils, Vcl.Skia, System.Skia, Vcl.ComCtrls;
 
 type
   TfrmMain = class(TForm)
@@ -28,7 +28,12 @@ type
     bntSelectPath: TButton;
     tmr10ms: TTimer;
     svgName_Site: TSkSvg;
-    svgName_Forge: TSkSvg;
+    Shape1: TShape;
+    Shape2: TShape;
+    Shape3: TShape;
+    Shape4: TShape;
+    lblSavePathDisplay: TLabel;
+    redtSavePathDisplay: TRichEdit;
     procedure btnFrontClick(Sender: TObject);
     procedure btnTopClick(Sender: TObject);
     procedure btnRightClick(Sender: TObject);
@@ -36,11 +41,12 @@ type
     procedure bntSelectPathClick(Sender: TObject);
     procedure tmr10msTimer(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure redtSavePathDisplayChange(Sender: TObject);
   private
     var
-      sImgPathTopView, sImgPathFrontView, sImgPathRightView, sSavePath, sName, sSiteForgePath : String;
+      sImgPathTopView, sImgPathFrontView, sImgPathRightView, sSavePath, sName, sSiteForgePath, sUserPath : String;
 
-    function OpenImageFileSelect(): String;
+    function OpenImageFileSelect(sTitle : String): String;
     function ShellExecute_AndWait(FileName: string; Params: string): bool;
   public
     { Public declarations }
@@ -53,7 +59,7 @@ implementation
 
 {$R *.dfm}
 
-function TfrmMain.OpenImageFileSelect(): String;
+function TfrmMain.OpenImageFileSelect(sTitle : String): String;
 var
   OpenDialog: TOpenDialog;
 begin
@@ -61,15 +67,22 @@ begin
   try
     OpenDialog.Filter := 'Image files|*.png;*.jpg;*.jpeg;*.bmp';
     OpenDialog.Options := [ofFileMustExist];
+    OpenDialog.Title := sTitle;
 
     if OpenDialog.Execute then
     begin
-      Result := OpenDialog.FileName;
+      Result := OpenDialog.FileName
     end;
   finally
     OpenDialog.Free;
   end;
 
+end;
+
+procedure TfrmMain.redtSavePathDisplayChange(Sender: TObject);
+begin
+  if redtSavePathDisplay.Text <> '' then
+    sSavePath := redtSavePathDisplay.Text;
 end;
 
 function TfrmMain.ShellExecute_AndWait(FileName: string; Params: string): bool;
@@ -109,7 +122,10 @@ procedure TfrmMain.btnRightClick(Sender: TObject);
 var
   sFilePath: String;
 begin
-  sFilePath := OpenImageFileSelect();
+  sFilePath := OpenImageFileSelect('Select a RIGHT view image');
+
+  if sFilePath = '' then
+    exit;
 
   imgSide.Picture.LoadFromFile(sFilePath);
   imgSide.Center := True;
@@ -122,7 +138,10 @@ procedure TfrmMain.btnTopClick(Sender: TObject);
 var
   sFilePath: String;
 begin
-  sFilePath := OpenImageFileSelect();
+  sFilePath := OpenImageFileSelect('Select a TOP view image');
+
+  if sFilePath = '' then
+    exit;
 
   imgTop.Picture.LoadFromFile(sFilePath);
   imgTop.Center := True;
@@ -135,7 +154,10 @@ procedure TfrmMain.btnFrontClick(Sender: TObject);
 var
   sFilePath: String;
 begin
-  sFilePath := OpenImageFileSelect();
+  sFilePath := OpenImageFileSelect('Select a FRONT view image');
+
+  if sFilePath = '' then
+    exit;
 
   imgFront.Picture.LoadFromFile(sFilePath);
   imgFront.Center := True;
@@ -146,16 +168,22 @@ end;
 
 procedure TfrmMain.bntSelectPathClick(Sender: TObject);
 var
-  ChosenDirectory: string;
+  FileOpenDialog: TFileOpenDialog;
 begin
-  // Show dialog starting from C:\, with custom title
-  if SelectDirectory('Select a Folder', 'C:\', ChosenDirectory) then
-  begin
-    ShowMessage('Selected: ' + ChosenDirectory);
-    sSavePath := ChosenDirectory;
-  end
-  else
-    ShowMessage('Selection cancelled');
+  FileOpenDialog := TFileOpenDialog.Create(nil);
+  try
+    FileOpenDialog.Options := [fdoPickFolders, fdoPathMustExist];
+    FileOpenDialog.Title := 'Select a Folder';
+    FileOpenDialog.DefaultFolder := sUserPath;
+
+    if FileOpenDialog.Execute then
+    begin
+      sSavePath := FileOpenDialog.FileName;
+      redtSavePathDisplay.Text := sSavePath;
+    end;
+  finally
+    FileOpenDialog.Free;
+  end;
 
 end;
 
@@ -184,6 +212,14 @@ begin
   sSiteForgePath := TPath.GetHomePath;
   Delete(sSiteForgePath, Length(sSiteForgePath) - 6, 7);
   sSiteForgePath := sSiteForgePath + 'Local\SiteForge';
+
+  Delete(sSiteForgePath, Length(sSiteForgePath) - 22, 23);
+  sUserPath := sSiteForgePath;
+
+  sUserPath := sUserPath + 'Downloads';
+
+  redtSavePathDisplay.Text := '';
+
 end;
 
 procedure TfrmMain.tmr10msTimer(Sender: TObject);
