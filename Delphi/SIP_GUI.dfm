@@ -1,12 +1,12 @@
 object frmMain: TfrmMain
   Left = 0
   Top = 0
-  Width = 656
-  Height = 589
   HorzScrollBar.Increment = 2
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'SiteForge'
+  ClientHeight = 550
+  ClientWidth = 640
   Color = clBtnFace
   Font.Charset = ANSI_CHARSET
   Font.Color = clWindowText

@@ -32,8 +32,9 @@ type
     Shape2: TShape;
     Shape3: TShape;
     Shape4: TShape;
-    redtSavePathDisplay: TRichEdit;
     lblSavePathDisplay: TLabel;
+    redtSavePathDisplay: TRichEdit;
+    TabControl1: TTabControl;
     procedure btnFrontClick(Sender: TObject);
     procedure btnTopClick(Sender: TObject);
     procedure btnRightClick(Sender: TObject);
@@ -81,7 +82,8 @@ end;
 
 procedure TfrmMain.redtSavePathDisplayChange(Sender: TObject);
 begin
-  sSavePath := redtSavePathDisplay.Text;
+  if redtSavePathDisplay.Text <> '' then
+    sSavePath := redtSavePathDisplay.Text;
 end;
 
 function TfrmMain.ShellExecute_AndWait(FileName: string; Params: string): bool;
@@ -167,20 +169,21 @@ end;
 
 procedure TfrmMain.bntSelectPathClick(Sender: TObject);
 var
-  OpenDialog: TFileOpenDialog;
+  FileOpenDialog: TFileOpenDialog;
 begin
-  OpenDialog := TFileOpenDialog.Create(nil);
+  FileOpenDialog := TFileOpenDialog.Create(nil);
   try
-    OpenDialog.Options := [fdoPickFolders, fdoPathMustExist];
-    OpenDialog.Title := 'Select a Folder';
+    FileOpenDialog.Options := [fdoPickFolders, fdoPathMustExist];
+    FileOpenDialog.Title := 'Select a Folder';
+    FileOpenDialog.DefaultFolder := sUserPath;
 
-    if OpenDialog.Execute then
+    if FileOpenDialog.Execute then
     begin
-      sSavePath := OpenDialog.FileName;
+      sSavePath := FileOpenDialog.FileName;
       redtSavePathDisplay.Text := sSavePath;
     end;
   finally
-    OpenDialog.Free;
+    FileOpenDialog.Free;
   end;
 
 end;
@@ -214,7 +217,9 @@ begin
   Delete(sSiteForgePath, Length(sSiteForgePath) - 22, 23);
   sUserPath := sSiteForgePath;
 
-  sUserPath := sUserPath + 'Downloads'
+  sUserPath := sUserPath + 'Downloads';
+
+  redtSavePathDisplay.Text := '';
 
 end;
 
