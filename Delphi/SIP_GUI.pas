@@ -6,7 +6,8 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Imaging.pngimage, Vcl.Imaging.jpeg, Vcl.StdCtrls, Vcl.ExtCtrls,
-  ShellApi, FileCtrl, System.IOUtils, Vcl.Skia, System.Skia, Vcl.ComCtrls;
+  ShellApi, FileCtrl, System.IOUtils, Vcl.Skia, System.Skia, Vcl.ComCtrls,
+  Vcl.NumberBox;
 
 type
   TfrmMain = class(TForm)
@@ -27,13 +28,78 @@ type
     lblName: TLabel;
     bntSelectPath: TButton;
     tmr10ms: TTimer;
-    svgName_Site: TSkSvg;
+    svgNameplate_Model: TSkSvg;
     Shape1: TShape;
     Shape2: TShape;
     Shape3: TShape;
     Shape4: TShape;
     lblSavePathDisplay: TLabel;
     redtSavePathDisplay: TRichEdit;
+    pgctrlMain: TPageControl;
+    tabModelGen: TTabSheet;
+    tabSlicing: TTabSheet;
+    svgNameplate_Slicer: TSkSvg;
+    tabSettings: TTabSheet;
+    pgctrlSettings: TPageControl;
+    tabPrintSettings: TTabSheet;
+    tabMaterialSettings: TTabSheet;
+    tabPrinterSettings: TTabSheet;
+    pgctrlPrintSettings: TPageControl;
+    tabLayersPerimeters: TTabSheet;
+    tabSpeed: TTabSheet;
+    tabAdvanced: TTabSheet;
+    pgctrlPrinterSettings: TPageControl;
+    tabGeneralPrinter: TTabSheet;
+    tabCustomGcode: TTabSheet;
+    pgctrlMaterialSettings: TPageControl;
+    tabGeneralMaterial: TTabSheet;
+    TabSheet2: TTabSheet;
+    pnlBedDimentions: TPanel;
+    nobxBedShapeX: TNumberBox;
+    nobxBedShapeY: TNumberBox;
+    nobxBedShapeZ: TNumberBox;
+    lblBedDimsCaption: TLabel;
+    lblbedDimsX: TLabel;
+    lblbedDimsY: TLabel;
+    lblbedDimsZ: TLabel;
+    pnlZOffset: TPanel;
+    lblZOffsetCaption: TLabel;
+    nobxZOffset: TNumberBox;
+    pnlGcodeFlavor: TPanel;
+    lblGcodeFlavorCaption: TLabel;
+    cmbbxGcodeFlavor: TComboBox;
+    tabExtruder: TTabSheet;
+    pnlNozzelDiamater: TPanel;
+    lblNozzelDiameterCaption: TLabel;
+    nobxNozzelDiameter: TNumberBox;
+    lblNozzelDiameterMeasurements: TLabel;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    lblBedShapeXDimensions: TLabel;
+    lblBedShapeYDimensions: TLabel;
+    lblBedShapeZDimensions: TLabel;
+    lblZOffsetDimensions: TLabel;
+    pnlRetraction: TPanel;
+    lblRetractionCaption: TLabel;
+    lblRetractionLength: TLabel;
+    lblRetractionSpeedMeasurements: TLabel;
+    lblRetractionSpeed: TLabel;
+    lblRetractionLengthMeasurements: TLabel;
+    nobxRetractionLength: TNumberBox;
+    nobxRetractionSpeed: TNumberBox;
+    memPrinterGcodeStart: TMemo;
+    pnlPrinterGcodeStart: TPanel;
+    pnlPrinterGcodeEnd: TPanel;
+    memPrinterGcodeEnd: TMemo;
+    pnlPrinterGcodeBeforeLayerChange: TPanel;
+    memPrinterGcodeBeforeLayerChange: TMemo;
+    pnlPrinterGcodeAfterLayerChange: TPanel;
+    memPrinterGcodeAfterLayerChange: TMemo;
+    lblPrinterGcodeStart: TLabel;
+    lblPrinterGcodeEnd: TLabel;
+    lblPrinterGcodeBeforeLayerChange: TLabel;
+    lblPrinterGcodeAfterLayerChange: TLabel;
     procedure btnFrontClick(Sender: TObject);
     procedure btnTopClick(Sender: TObject);
     procedure btnRightClick(Sender: TObject);
@@ -219,6 +285,8 @@ begin
   sUserPath := sUserPath + 'Downloads';
 
   redtSavePathDisplay.Text := '';
+
+  pgctrlMain.TabIndex := 0;
 
 end;
 
