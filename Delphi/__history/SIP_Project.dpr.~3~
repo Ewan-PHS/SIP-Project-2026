@@ -2,8 +2,6 @@ program SIP_Project;
 
 uses
   Vcl.Forms,
-  SysUtils,
-  Vcl.Dialogs,
   SIP_GUI in 'SIP_GUI.pas' {frmMain};
 
 {$R *.res}

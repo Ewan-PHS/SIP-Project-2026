@@ -152,7 +152,6 @@
         </DelphiCompile>
         <DCCReference Include="SIP_GUI.pas">
             <Form>frmMain</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
