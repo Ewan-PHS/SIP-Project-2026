@@ -5,7 +5,7 @@
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Release</Config>
-        <Platform Condition="'$(Platform)'==''">Win64</Platform>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Application</AppType>
         <MainSource>SIP_Project.dpr</MainSource>
@@ -140,6 +140,8 @@
         <Icon_MainIcon>$(ProjectName).Artwork\Windows\AppIcon.ico</Icon_MainIcon>
         <VerInfo_PreRelease>true</VerInfo_PreRelease>
         <VerInfo_Keys>CompanyName=Ewan C &amp; Nathan B-M;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <DCC_RangeChecking>true</DCC_RangeChecking>
+        <DCC_IntegerOverflowCheck>true</DCC_IntegerOverflowCheck>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
