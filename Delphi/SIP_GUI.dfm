@@ -42,7 +42,7 @@ object frmMain: TfrmMain
     Top = 0
     Width = 638
     Height = 584
-    ActivePage = tabSettings
+    ActivePage = tabModelGen
     Align = alClient
     TabOrder = 0
     object tabModelGen: TTabSheet
@@ -636,7 +636,7 @@ object frmMain: TfrmMain
                 object lblBedDimsCaption: TLabel
                   Left = 8
                   Top = 3
-                  Width = 84
+                  Width = 66
                   Height = 23
                   Alignment = taCenter
                   Caption = 'Bed Shape'
@@ -714,7 +714,7 @@ object frmMain: TfrmMain
                 object lblZOffsetCaption: TLabel
                   Left = 8
                   Top = 3
-                  Width = 89
+                  Width = 46
                   Height = 23
                   Alignment = taCenter
                   Caption = 'Z offset'
@@ -743,7 +743,7 @@ object frmMain: TfrmMain
                 object lblGcodeFlavorCaption: TLabel
                   Left = 0
                   Top = 8
-                  Width = 169
+                  Width = 86
                   Height = 23
                   Alignment = taCenter
                   Caption = 'G-code Flavor'
@@ -870,7 +870,7 @@ object frmMain: TfrmMain
                 object lblNozzelDiameterCaption: TLabel
                   Left = 8
                   Top = 8
-                  Width = 153
+                  Width = 102
                   Height = 23
                   Alignment = taCenter
                   Caption = 'Nozzel Diameter'
@@ -899,7 +899,7 @@ object frmMain: TfrmMain
                 object lblRetractionCaption: TLabel
                   Left = 8
                   Top = 8
-                  Width = 305
+                  Width = 64
                   Height = 23
                   Alignment = taCenter
                   Caption = 'Retraction'
