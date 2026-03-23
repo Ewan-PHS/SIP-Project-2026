@@ -1,5 +1,7 @@
 ### Imports ###
 # import math
+import sys
+
 from ast import arg
 
 from PIL import Image
@@ -391,7 +393,8 @@ v, f = pcu.load_mesh_vf(f'{SiteForge_tmp_dir}\\{name_to_save}_tmp.ply')
 # Deleting temporary .ply mesh
 if os.path.exists(f'{SiteForge_tmp_dir}\\{name_to_save}_tmp.ply'):
     os.remove(f'{SiteForge_tmp_dir}\\{name_to_save}_tmp.ply')
-    print("tmp .ply deleted.")
+    if args.opengui == 1:
+        print("tmp .ply deleted.")
 
 # Setting the parameter for making the mesh 'watertight' / have no holes
 resolution = 12500
@@ -406,7 +409,8 @@ output_mesh = meshio.read(f'{SiteForge_tmp_dir}\\{name_to_save}_tmp-final.ply')
 # Deleting temporary .ply mesh
 if os.path.exists(f'{SiteForge_tmp_dir}\\{name_to_save}_tmp-final.ply'):
     os.remove(f'{SiteForge_tmp_dir}\\{name_to_save}_tmp-final.ply')
-    print("tmp-final .ply deleted.")
+    if args.opengui == 1:
+        print("tmp-final .ply deleted.")
 
 # To get the end time of execution
 end_time = time.perf_counter()
@@ -458,13 +462,16 @@ render.destroy_window()
 # Get time of the render ending
 end_render_time = time.perf_counter()
 
-# Printing telementry data for testing
-print(f"""
-################################################
-Name: {name_to_save}
-Image Size: {Image_Size} pixels
-Execution time: {end_time - start_time} seconds
-Save time: {end_save_time - end_time} seconds
-Render time: {end_render_time - end_save_time} seconds
-################################################
-""")
+if args.opengui == 1:
+    # Printing telementry data for testing
+    print(f"""
+    ################################################
+    Name: {name_to_save}
+    Image Size: {Image_Size} pixels
+    Execution time: {end_time - start_time} seconds
+    Save time: {end_save_time - end_time} seconds
+    Render time: {end_render_time - end_save_time} seconds
+    ################################################
+    """)
+
+    print(f"Python Version: {sys.version}")
