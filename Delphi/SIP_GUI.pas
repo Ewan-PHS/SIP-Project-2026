@@ -276,10 +276,12 @@ end;
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
   sSiteForgePath := TPath.GetHomePath;
-  Delete(sSiteForgePath, Length(sSiteForgePath) - 6, 7);
+  if Length(sSiteForgePath) > 6 then
+    Delete(sSiteForgePath, Length(sSiteForgePath) - 6, 7);
   sSiteForgePath := sSiteForgePath + 'Local\SiteForge';
 
-  Delete(sSiteForgePath, Length(sSiteForgePath) - 22, 23);
+  if Length(sSiteForgePath) > 22 then
+    Delete(sSiteForgePath, Length(sSiteForgePath) - 22, 23);
   sUserPath := sSiteForgePath;
 
   sUserPath := sUserPath + 'Downloads';
