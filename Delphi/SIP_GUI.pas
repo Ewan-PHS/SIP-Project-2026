@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Imaging.pngimage, Vcl.Imaging.jpeg, Vcl.StdCtrls, Vcl.ExtCtrls,
-  ShellApi, FileCtrl, System.IOUtils, Vcl.Skia, System.Skia, Vcl.ComCtrls,
+  ShellApi, FileCtrl, System.IOUtils, Vcl.ComCtrls,
   Vcl.NumberBox;
 
 type
@@ -275,15 +275,11 @@ end;
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
-  ShowMessage('FormCreate works');
-
   sSiteForgePath := TPath.Combine(GetEnvironmentVariable('LOCALAPPDATA'), 'SiteForge');
 
   sUserPath := TPath.GetDownloadsPath;
 
-  //redtSavePathDisplay.Text := '';
-
-
+  redtSavePathDisplay.Text := '';
 
   pgctrlMain.TabIndex := 0;
 
