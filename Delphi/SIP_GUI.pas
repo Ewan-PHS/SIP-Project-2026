@@ -28,7 +28,6 @@ type
     lblName: TLabel;
     bntSelectPath: TButton;
     tmr10ms: TTimer;
-    svgNameplate_Model: TSkSvg;
     Shape1: TShape;
     Shape2: TShape;
     Shape3: TShape;
@@ -38,7 +37,6 @@ type
     pgctrlMain: TPageControl;
     tabModelGen: TTabSheet;
     tabSlicing: TTabSheet;
-    svgNameplate_Slicer: TSkSvg;
     tabSettings: TTabSheet;
     pgctrlSettings: TPageControl;
     tabPrintSettings: TTabSheet;
@@ -100,6 +98,8 @@ type
     lblPrinterGcodeEnd: TLabel;
     lblPrinterGcodeBeforeLayerChange: TLabel;
     lblPrinterGcodeAfterLayerChange: TLabel;
+    imgNameplate_Model: TImage;
+    imgNameplate_Slicer: TImage;
     procedure btnFrontClick(Sender: TObject);
     procedure btnTopClick(Sender: TObject);
     procedure btnRightClick(Sender: TObject);
