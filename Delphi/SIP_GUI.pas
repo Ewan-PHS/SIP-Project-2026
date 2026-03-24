@@ -281,7 +281,7 @@ begin
 
   sUserPath := TPath.GetDownloadsPath;
 
-  redtSavePathDisplay.Text := '';
+  //redtSavePathDisplay.Text := '';
 
 
 
