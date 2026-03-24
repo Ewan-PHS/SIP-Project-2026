@@ -6,7 +6,8 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Imaging.pngimage, Vcl.Imaging.jpeg, Vcl.StdCtrls, Vcl.ExtCtrls,
-  ShellApi, FileCtrl, System.IOUtils, Vcl.Skia, System.Skia, Vcl.ComCtrls;
+  ShellApi, FileCtrl, System.IOUtils, Vcl.Skia, System.Skia, Vcl.ComCtrls,
+  Vcl.NumberBox;
 
 type
   TfrmMain = class(TForm)
@@ -27,7 +28,6 @@ type
     lblName: TLabel;
     bntSelectPath: TButton;
     tmr10ms: TTimer;
-    svgNameplate_Model: TSkSvg;
     Shape1: TShape;
     Shape2: TShape;
     Shape3: TShape;
@@ -37,7 +37,6 @@ type
     pgctrlMain: TPageControl;
     tabModelGen: TTabSheet;
     tabSlicing: TTabSheet;
-    svgNameplate_Slicer: TSkSvg;
     tabSettings: TTabSheet;
     pgctrlSettings: TPageControl;
     tabPrintSettings: TTabSheet;
@@ -53,6 +52,54 @@ type
     pgctrlMaterialSettings: TPageControl;
     tabGeneralMaterial: TTabSheet;
     TabSheet2: TTabSheet;
+    pnlBedDimentions: TPanel;
+    nobxBedShapeX: TNumberBox;
+    nobxBedShapeY: TNumberBox;
+    nobxBedShapeZ: TNumberBox;
+    lblBedDimsCaption: TLabel;
+    lblbedDimsX: TLabel;
+    lblbedDimsY: TLabel;
+    lblbedDimsZ: TLabel;
+    pnlZOffset: TPanel;
+    lblZOffsetCaption: TLabel;
+    nobxZOffset: TNumberBox;
+    pnlGcodeFlavor: TPanel;
+    lblGcodeFlavorCaption: TLabel;
+    cmbbxGcodeFlavor: TComboBox;
+    tabExtruder: TTabSheet;
+    pnlNozzelDiamater: TPanel;
+    lblNozzelDiameterCaption: TLabel;
+    nobxNozzelDiameter: TNumberBox;
+    lblNozzelDiameterMeasurements: TLabel;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    lblBedShapeXDimensions: TLabel;
+    lblBedShapeYDimensions: TLabel;
+    lblBedShapeZDimensions: TLabel;
+    lblZOffsetDimensions: TLabel;
+    pnlRetraction: TPanel;
+    lblRetractionCaption: TLabel;
+    lblRetractionLength: TLabel;
+    lblRetractionSpeedMeasurements: TLabel;
+    lblRetractionSpeed: TLabel;
+    lblRetractionLengthMeasurements: TLabel;
+    nobxRetractionLength: TNumberBox;
+    nobxRetractionSpeed: TNumberBox;
+    memPrinterGcodeStart: TMemo;
+    pnlPrinterGcodeStart: TPanel;
+    pnlPrinterGcodeEnd: TPanel;
+    memPrinterGcodeEnd: TMemo;
+    pnlPrinterGcodeBeforeLayerChange: TPanel;
+    memPrinterGcodeBeforeLayerChange: TMemo;
+    pnlPrinterGcodeAfterLayerChange: TPanel;
+    memPrinterGcodeAfterLayerChange: TMemo;
+    lblPrinterGcodeStart: TLabel;
+    lblPrinterGcodeEnd: TLabel;
+    lblPrinterGcodeBeforeLayerChange: TLabel;
+    lblPrinterGcodeAfterLayerChange: TLabel;
+    imgNameplate_Model: TImage;
+    imgNameplate_Slicer: TImage;
     procedure btnFrontClick(Sender: TObject);
     procedure btnTopClick(Sender: TObject);
     procedure btnRightClick(Sender: TObject);
@@ -228,16 +275,18 @@ end;
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
-  sSiteForgePath := TPath.GetHomePath;
-  Delete(sSiteForgePath, Length(sSiteForgePath) - 6, 7);
+  ShowMessage('FormCreate works');
+
+  sSiteForgePath := TPath.Combine(GetEnvironmentVariable('LOCALAPPDATA'), 'SiteForge');
+  if Length(sSiteForgePath) > 6 then
+    Delete(sSiteForgePath, Length(sSiteForgePath) - 6, 7);
   sSiteForgePath := sSiteForgePath + 'Local\SiteForge';
 
-  Delete(sSiteForgePath, Length(sSiteForgePath) - 22, 23);
-  sUserPath := sSiteForgePath;
-
-  sUserPath := sUserPath + 'Downloads';
+  sUserPath := TPath.GetDownloadsPath;
 
   redtSavePathDisplay.Text := '';
+
+
 
   pgctrlMain.TabIndex := 0;
 

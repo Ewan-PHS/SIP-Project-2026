@@ -275,18 +275,15 @@ end;
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
-  sSiteForgePath := TPath.GetHomePath;
-  if Length(sSiteForgePath) > 6 then
-    Delete(sSiteForgePath, Length(sSiteForgePath) - 6, 7);
-  sSiteForgePath := sSiteForgePath + 'Local\SiteForge';
+  ShowMessage('FormCreate works');
 
-  if Length(sSiteForgePath) > 22 then
-    Delete(sSiteForgePath, Length(sSiteForgePath) - 22, 23);
-  sUserPath := sSiteForgePath;
+  sSiteForgePath := TPath.Combine(GetEnvironmentVariable('LOCALAPPDATA'), 'SiteForge');
 
-  sUserPath := sUserPath + 'Downloads';
+  sUserPath := TPath.GetDownloadsPath;
 
   redtSavePathDisplay.Text := '';
+
+
 
   pgctrlMain.TabIndex := 0;
 

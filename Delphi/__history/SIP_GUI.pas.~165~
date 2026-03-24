@@ -28,7 +28,6 @@ type
     lblName: TLabel;
     bntSelectPath: TButton;
     tmr10ms: TTimer;
-    svgNameplate_Model: TSkSvg;
     Shape1: TShape;
     Shape2: TShape;
     Shape3: TShape;
@@ -38,7 +37,6 @@ type
     pgctrlMain: TPageControl;
     tabModelGen: TTabSheet;
     tabSlicing: TTabSheet;
-    svgNameplate_Slicer: TSkSvg;
     tabSettings: TTabSheet;
     pgctrlSettings: TPageControl;
     tabPrintSettings: TTabSheet;
@@ -73,6 +71,35 @@ type
     lblNozzelDiameterCaption: TLabel;
     nobxNozzelDiameter: TNumberBox;
     lblNozzelDiameterMeasurements: TLabel;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    lblBedShapeXDimensions: TLabel;
+    lblBedShapeYDimensions: TLabel;
+    lblBedShapeZDimensions: TLabel;
+    lblZOffsetDimensions: TLabel;
+    pnlRetraction: TPanel;
+    lblRetractionCaption: TLabel;
+    lblRetractionLength: TLabel;
+    lblRetractionSpeedMeasurements: TLabel;
+    lblRetractionSpeed: TLabel;
+    lblRetractionLengthMeasurements: TLabel;
+    nobxRetractionLength: TNumberBox;
+    nobxRetractionSpeed: TNumberBox;
+    memPrinterGcodeStart: TMemo;
+    pnlPrinterGcodeStart: TPanel;
+    pnlPrinterGcodeEnd: TPanel;
+    memPrinterGcodeEnd: TMemo;
+    pnlPrinterGcodeBeforeLayerChange: TPanel;
+    memPrinterGcodeBeforeLayerChange: TMemo;
+    pnlPrinterGcodeAfterLayerChange: TPanel;
+    memPrinterGcodeAfterLayerChange: TMemo;
+    lblPrinterGcodeStart: TLabel;
+    lblPrinterGcodeEnd: TLabel;
+    lblPrinterGcodeBeforeLayerChange: TLabel;
+    lblPrinterGcodeAfterLayerChange: TLabel;
+    imgNameplate_Model: TImage;
+    imgNameplate_Slicer: TImage;
     procedure btnFrontClick(Sender: TObject);
     procedure btnTopClick(Sender: TObject);
     procedure btnRightClick(Sender: TObject);
@@ -248,16 +275,18 @@ end;
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
+  ShowMessage('FormCreate works');
+
   sSiteForgePath := TPath.GetHomePath;
-  Delete(sSiteForgePath, Length(sSiteForgePath) - 6, 7);
+  if Length(sSiteForgePath) > 6 then
+    Delete(sSiteForgePath, Length(sSiteForgePath) - 6, 7);
   sSiteForgePath := sSiteForgePath + 'Local\SiteForge';
 
-  Delete(sSiteForgePath, Length(sSiteForgePath) - 22, 23);
-  sUserPath := sSiteForgePath;
-
-  sUserPath := sUserPath + 'Downloads';
+  sUserPath := TPath.GetDownloadsPath;
 
   redtSavePathDisplay.Text := '';
+
+
 
   pgctrlMain.TabIndex := 0;
 
