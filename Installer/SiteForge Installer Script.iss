@@ -58,7 +58,7 @@ Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Run]
-Filename: "python-3.12.3-amd64_Installer.exe"; Parameters: " ""/quiet InstallAllUsers=1 PrependPath=1 Include_test=0"" "; Flags: postinstall hidewizard 
+Filename: "{app}\python-3.12.3-amd64_Installer.exe"; Parameters: " ""/quiet InstallAllUsers=1 PrependPath=1 Include_test=0"" "; Flags: postinstall hidewizard 
 
 Filename: "cmd.exe"; Parameters: "/K ""{app}\Install_Requirements.bat"" ""{app}"""; Flags: postinstall hidewizard
 
