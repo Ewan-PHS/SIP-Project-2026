@@ -57,7 +57,11 @@ Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Run]
-Filename: "cmd.exe"; Parameters: "/K ""{app}\Install_Requirements.bat"" ""{app}"""; Flags: postinstall hidewizard
+; Filename: "cmd.exe"; Parameters: "/K ""{app}\Install_Requirements.bat"" ""{app}"""; Flags: postinstall hidewizard
+Filename: "cmd.exe"; Parameters: "/K winget install -e --id Python.Python.3.12 --silent --accept-source-agreements --accept-package-agreements"; Flags: postinstall hidewizard
+Filename: "cmd.exe"; Parameters: "/K ""cd {app}"""; Flags: postinstall hidewizard
+Filename: "cmd.exe"; Parameters: "/K pip install -r requirements.txt"; Flags: postinstall hidewizard
+
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
 
